@@ -7,6 +7,7 @@ class PhuHuynh {
   final String soDienThoai;
   final String quanHe;
   final String idHs;
+  final String gmail;
   final DateTime createdAt;
 
   PhuHuynh({
@@ -16,6 +17,7 @@ class PhuHuynh {
     required this.soDienThoai,
     required this.quanHe,
     required this.idHs,
+    required this.gmail,
     required this.createdAt,
   });
 
@@ -28,6 +30,7 @@ class PhuHuynh {
       soDienThoai: data['so_dien_thoai'] ?? '',
       quanHe: data['quan_he'] ?? '',
       idHs: data['id_hs'] ?? '',
+      gmail: data['gmail'] ?? '',
       createdAt: (data['created_at'] as Timestamp).toDate(),
     );
   }
@@ -39,6 +42,7 @@ class PhuHuynh {
       'so_dien_thoai': soDienThoai,
       'quan_he': quanHe,
       'id_hs': idHs,
+      'gmail': gmail,
       'created_at': Timestamp.fromDate(createdAt),
     };
   }
@@ -50,6 +54,7 @@ class PhuHuynh {
     String? soDienThoai,
     String? quanHe,
     String? idHs,
+    String? gmail,
     DateTime? createdAt,
   }) {
     return PhuHuynh(
@@ -59,6 +64,7 @@ class PhuHuynh {
       soDienThoai: soDienThoai ?? this.soDienThoai,
       quanHe: quanHe ?? this.quanHe,
       idHs: idHs ?? this.idHs,
+      gmail: gmail ?? this.gmail,
       createdAt: createdAt ?? this.createdAt,
     );
   }

@@ -77,4 +77,14 @@ class LopService {
               snapshot.docs.map((doc) => Lop.fromFirestore(doc)).toList(),
         );
   }
+
+  static Future<List<Lop>> getAllLop() async {
+    final querySnapshot =
+        await FirebaseService.firestore
+            .collection(collection)
+            .orderBy('created_at', descending: true)
+            .get();
+
+    return querySnapshot.docs.map((doc) => Lop.fromFirestore(doc)).toList();
+  }
 }

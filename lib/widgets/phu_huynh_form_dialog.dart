@@ -26,6 +26,7 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
   final _soCccdController = TextEditingController();
   final _soDienThoaiController = TextEditingController();
   final _quanHeController = TextEditingController();
+  final _gmailController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -36,6 +37,7 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
       _soCccdController.text = widget.phuHuynh!.soCccd;
       _soDienThoaiController.text = widget.phuHuynh!.soDienThoai;
       _quanHeController.text = widget.phuHuynh!.quanHe;
+      _gmailController.text = widget.phuHuynh!.gmail;
     }
   }
 
@@ -45,6 +47,7 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
     _soCccdController.dispose();
     _soDienThoaiController.dispose();
     _quanHeController.dispose();
+    _gmailController.dispose();
     super.dispose();
   }
 
@@ -122,6 +125,19 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _gmailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email *',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.text,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: _quanHeController,
                 decoration: const InputDecoration(
                   labelText: 'Quan Hệ *',
@@ -173,6 +189,7 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
         soDienThoai: _soDienThoaiController.text.trim(),
         quanHe: _quanHeController.text.trim(),
         idHs: widget.hocSinh.id!,
+        gmail: _gmailController.text.trim(),
         createdAt: widget.phuHuynh?.createdAt ?? DateTime.now(),
       );
 

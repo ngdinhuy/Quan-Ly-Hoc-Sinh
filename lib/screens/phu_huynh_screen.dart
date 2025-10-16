@@ -45,7 +45,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
     });
 
     try {
-      final lopList = await LopService.getLopByTruong(''); // Load all classes
+      final lopList = await LopService.getAllLop(); // Load all classes
       setState(() {
         _lopList = lopList;
       });
@@ -102,6 +102,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
         _thamPhList = thamPhList;
       });
     } catch (e) {
+      debugPrint(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi tải danh sách thăm phụ huynh: $e')),
       );

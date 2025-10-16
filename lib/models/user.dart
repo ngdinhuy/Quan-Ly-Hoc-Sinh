@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum UserRole { admin, giaovien, hocsinh }
+enum UserRole { admin, giaovien, hocsinh, phuhuynh }
 
 class UserModel {
   final String id;
@@ -55,6 +55,8 @@ class UserModel {
         return 'admin';
       case UserRole.giaovien:
         return 'giaovien';
+      case UserRole.phuhuynh:
+        return 'phuhuynh';
       case UserRole.hocsinh:
         return 'hocsinh';
     }

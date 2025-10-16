@@ -6,7 +6,12 @@ import 'package:quan_ly_hoc_sinh/models/user.dart';
 import 'package:quan_ly_hoc_sinh/services/user_service.dart';
 
 class GoogleLoginButton extends StatefulWidget {
-  const GoogleLoginButton({super.key});
+  final Function()? onLoginSuccess;
+
+  const GoogleLoginButton({
+    super.key,
+    this.onLoginSuccess,
+  });
 
   @override
   State<GoogleLoginButton> createState() => _GoogleLoginButtonState();
@@ -26,6 +31,11 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
             backgroundColor: Colors.green,
           ),
         );
+
+        // Call the onLoginSuccess callback if provided
+        if (widget.onLoginSuccess != null) {
+          widget.onLoginSuccess!();
+        }
       }
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
@@ -43,12 +53,12 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
     return _loading
         ? const CircularProgressIndicator()
         : ElevatedButton.icon(
-      onPressed: _signIn,
-      icon: const Icon(Icons.login),
-      label: const Text('Đăng nhập với Google'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      ),
-    );
+            onPressed: _signIn,
+            icon: const Icon(Icons.login),
+            label: const Text('Đăng nhập với Google'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+          );
   }
 }

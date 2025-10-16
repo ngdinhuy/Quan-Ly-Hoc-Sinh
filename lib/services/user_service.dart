@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../models/user.dart' as app_user;
 import 'firebase_service.dart';
 import '../config/google_signin_config.dart';
@@ -51,8 +52,6 @@ class UserService {
       await FirebaseAuth.instance.signInWithCredential(credential);
     }
 
-    final user = userCredential.user;
-
     final User? firebaseUser = userCredential.user;
     debugPrint("HuyND Firebase User Credential: $firebaseUser");
     if (firebaseUser == null) {
@@ -72,6 +71,7 @@ class UserService {
           .collection(collection)
           .doc(firebaseUser.uid)
           .update({'last_login': Timestamp.fromDate(DateTime.now())});
+      _determineUserRole(firebaseUser.email ?? '');
       return app_user.UserModel.fromFirestore(doc);
     } else {
       // Create new user
@@ -105,6 +105,7 @@ class UserService {
 
     if (adminDoc.exists) {
       final adminEmails = List<String>.from(adminDoc.data()?['emails'] ?? []);
+      LocalDataService.instance.saveRole(app_user.UserRole.admin);
       if (adminEmails.contains(email)) {
         return app_user.UserRole.admin;
       }
@@ -119,6 +120,8 @@ class UserService {
             .get();
 
     if (teacherQuery.docs.isNotEmpty) {
+      LocalDataService.instance.saveRole(app_user.UserRole.giaovien);
+      LocalDataService.instance.saveId(teacherQuery.docs.first.id);
       return app_user.UserRole.giaovien;
     }
 
@@ -131,7 +134,22 @@ class UserService {
             .get();
 
     if (studentQuery.docs.isNotEmpty) {
+      LocalDataService.instance.saveRole(app_user.UserRole.hocsinh);
+      LocalDataService.instance.saveId(studentQuery.docs.first.id);
       return app_user.UserRole.hocsinh;
+    }
+
+    // Check if email matches a parent
+    final parentQuery =
+        await FirebaseService.firestore
+            .collection('phu_huynh')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+    if (parentQuery.docs.isNotEmpty) {
+      LocalDataService.instance.saveRole(app_user.UserRole.phuhuynh);
+      LocalDataService.instance.saveId(parentQuery.docs.first.id);
+      return app_user.UserRole.phuhuynh;
     }
 
     // Default role
@@ -186,6 +204,8 @@ class UserService {
         return 'giaovien';
       case app_user.UserRole.hocsinh:
         return 'hocsinh';
+      case app_user.UserRole.phuhuynh:
+        return 'phuhuynh';
     }
   }
 }

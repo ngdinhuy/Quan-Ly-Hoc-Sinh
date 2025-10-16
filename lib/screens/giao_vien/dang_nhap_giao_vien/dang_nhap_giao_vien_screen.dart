@@ -3,55 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:quan_ly_hoc_sinh/models/hoc_sinh.dart';
 import 'package:quan_ly_hoc_sinh/screens/component_widget/google_login_button.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/main/main_hoc_sinh.dart';
+import 'package:quan_ly_hoc_sinh/screens/main_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
-import '../services/hoc_sinh_service.dart';
-import '../services/user_service.dart';
-import 'main_screen.dart';
 import 'package:quan_ly_hoc_sinh/models/user.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+import '../../../services/hoc_sinh_service.dart';
+import '../../../services/user_service.dart';
+
+class DangNhapGiaoVienScreen extends StatefulWidget {
+  const DangNhapGiaoVienScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  State<DangNhapGiaoVienScreen> createState() => _DangNhapGiaoVienScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
   bool _isLoading = false;
   bool _isInitializing = true;
+  LocalDataService localDataService = LocalDataService.instance;
 
   @override
   void initState() {
     super.initState();
-    _initializeWeb();
-  }
-
-  Future<void> _initializeWeb() async {
-    try {
-      await _checkAuthState();
-    } catch (e) {
-      print('App initialization error: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isInitializing = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _checkAuthState() async {
-    try {
-      final user = await UserService.getCurrentUser();
-      if (user != null && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainScreen(user: user)),
-        );
-      }
-    } catch (e) {
-      print('Error checking auth state: $e');
-      // Continue to show login screen if there's an error
-    }
+    _checkAuth();
   }
 
   @override
@@ -95,12 +69,18 @@ class _AuthScreenState extends State<AuthScreen> {
                 if (_isLoading)
                   const CircularProgressIndicator()
                 else
-                  GoogleLoginButton(),
+                  GoogleLoginButton(
+                    onLoginSuccess: _checkAuth,
+                  ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _checkAuth() async {
+
   }
 }

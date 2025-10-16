@@ -1,3 +1,4 @@
+import 'package:quan_ly_hoc_sinh/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalDataService {
@@ -28,5 +29,26 @@ class LocalDataService {
 
   String? getIdGiaoVien() {
     return prefs.getString('id_giao_vien');
+  }
+
+  Future<void> saveId(String id) async {
+    await prefs.setString('id', id);
+  }
+
+  String? getId() {
+    return prefs.getString('id');
+  }
+
+  Future<void> saveRole(UserRole role) async {
+    await prefs.setString('role', role.name);
+  }
+
+  UserRole? getRole() {
+    final roleString = prefs.getString('role');
+    if (roleString == null) return null;
+    return UserRole.values.firstWhere(
+      (role) => role.name == roleString,
+      orElse: () => UserRole.hocsinh,
+    );
   }
 }

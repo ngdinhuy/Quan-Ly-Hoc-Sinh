@@ -105,11 +105,11 @@ class HocSinhService {
     return null;
   }
 
-  static Future<HocSinh?> login(String id, String matKhau) async {
+  static Future<HocSinh?> login(String soThe, String matKhau) async {
     final querySnapshot =
         await FirebaseService.firestore
             .collection(collection)
-            .where('id', isEqualTo: id)
+            .where('so_the_hoc_sinh', isEqualTo: soThe)
             .where('mat_khau', isEqualTo: matKhau)
             .limit(1)
             .get();

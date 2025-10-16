@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/hoc_sinh.dart';
+import '../models/user.dart';
 import '../services/hoc_sinh_service.dart';
 import '../services/local_data_service.dart';
 import 'hoc_sinh/dang_nhap_hoc_sinh/dang_nhap_screen.dart';
+import 'hoc_sinh/main/main_hoc_sinh.dart';
 
 class ChonLoaiVaiTroScreen extends StatefulWidget {
   @override
@@ -11,6 +13,7 @@ class ChonLoaiVaiTroScreen extends StatefulWidget {
 
 class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
   String? selectedType;
+  LocalDataService localDataService = LocalDataService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +97,30 @@ class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
       } else {
         Navigator.pushNamed(context, '/main_giao_vien');
       }
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    switch (localDataService.getRole()) {
+      case null:
+      // No role found, stay on auth screen
+        break;
+      case UserRole.admin:
+        break;
+      case UserRole.giaovien:
+        break;
+      case UserRole.phuhuynh:
+        break;
+      case UserRole.hocsinh:
+        if (localDataService.getId() != null) {
+          final HocSinh? hocSinh = await HocSinhService.getHocSinhById(localDataService.getId()!);
+          if (mounted && hocSinh != null) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => MainHocSinhScreen(hocSinh: hocSinh!)),
+            );
+          }
+        }
+        break;
     }
   }
 }

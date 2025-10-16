@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/hoc_sinh.dart';
+import '../../../models/user.dart';
 import '../../../services/hoc_sinh_service.dart';
 import '../../../services/local_data_service.dart';
 import '../main/main_hoc_sinh.dart';
@@ -47,8 +48,10 @@ class _DangNhapHocSinhScreenState extends State<DangNhapHocSinhScreen> {
 
       if ( hocSinh!= null && hocSinh.id != null) {
         // Save student ID to local storage
-        final idHocSinh = hocSinh.id;
-        await LocalDataService.instance.saveIdHocSinh(idHocSinh!);
+        final idHocSinh = hocSinh.id!;
+        // await LocalDataService.instance.saveIdHocSinh(idHocSinh!);
+        await LocalDataService.instance.saveId(idHocSinh);
+        await LocalDataService.instance.saveRole(UserRole.hocsinh);
 
         if (!mounted) return;
 
@@ -65,6 +68,7 @@ class _DangNhapHocSinhScreenState extends State<DangNhapHocSinhScreen> {
         });
       }
     } catch (e) {
+      debugPrint(e.toString());
       setState(() {
         _isLoading = false;
         _errorMessage = 'Lỗi kết nối: ${e.toString()}';
@@ -92,7 +96,7 @@ class _DangNhapHocSinhScreenState extends State<DangNhapHocSinhScreen> {
               TextField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'ID học sinh',
+                  labelText: 'Số thẻ học sinh',
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(),
                 ),

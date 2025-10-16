@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:quan_ly_hoc_sinh/services/image_service.dart';
+import 'package:quan_ly_hoc_sinh/utils/StringExt.dart';
 import '../models/hoc_sinh.dart';
 import '../models/truong.dart';
 import '../models/lop.dart';
@@ -33,6 +36,9 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
   DateTime? _ngaySinh;
   TrangThaiHocSinh _trangThai = TrangThaiHocSinh.dangHoc;
   bool _isLoading = false;
+  Uint8List? _selectedImage;
+  String? _imageUrl;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -82,6 +88,7 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                _buildNhapAnhTheWidget(),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -156,10 +163,9 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
                                 ? '${_ngaySinh!.day}/${_ngaySinh!.month}/${_ngaySinh!.year}'
                                 : 'Chọn ngày sinh',
                             style: TextStyle(
-                              color:
-                                  _ngaySinh != null
-                                      ? Colors.black
-                                      : Colors.grey,
+                              color: _ngaySinh != null
+                                  ? Colors.black
+                                  : Colors.grey,
                             ),
                           ),
                         ),
@@ -202,13 +208,12 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
                           labelText: 'Trạng Thái *',
                           border: OutlineInputBorder(),
                         ),
-                        items:
-                            TrangThaiHocSinh.values.map((trangThai) {
-                              return DropdownMenuItem(
-                                value: trangThai,
-                                child: Text(_getStatusText(trangThai)),
-                              );
-                            }).toList(),
+                        items: TrangThaiHocSinh.values.map((trangThai) {
+                          return DropdownMenuItem(
+                            value: trangThai,
+                            child: Text(_getStatusText(trangThai)),
+                          );
+                        }).toList(),
                         onChanged: (trangThai) {
                           setState(() {
                             _trangThai = trangThai!;
@@ -230,17 +235,125 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _saveHocSinh,
-          child:
-              _isLoading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : Text(widget.hocSinh == null ? 'Thêm' : 'Cập Nhật'),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(widget.hocSinh == null ? 'Thêm' : 'Cập Nhật'),
         ),
       ],
     );
+  }
+
+  Widget _buildNhapAnhTheWidget() {
+    return Container(
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Upload ảnh thẻ học sinh để nhập thông tin tự động',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: ConstrainedBox(
+                      constraints: new BoxConstraints(
+                        minWidth: 160
+                      ),
+                      child: _selectedImage != null
+                          ? Image.memory(_selectedImage!, fit: BoxFit.cover)
+                          : _imageUrl != null
+                          ? Image.network(
+                              _imageUrl!,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                  child: Icon(Icons.error_outline),
+                                );
+                              },
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.person,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _pickImage,
+                        icon: const Icon(Icons.photo_camera),
+                        label: const Text('Chọn ảnh'),
+                      ),
+                      if (_selectedImage != null || _imageUrl != null)
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _selectedImage = null;
+                              _imageUrl = null;
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          label: const Text(
+                            'Xóa ảnh',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+      final Uint8List? bytesFromPicker = await picked!.readAsBytes();
+      if (bytesFromPicker != null) {
+        setState(() {
+          _selectedImage = bytesFromPicker;
+          _imageUrl = null;
+        });
+      }
+      await uploadImage(bytesFromPicker!);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Không thể chọn ảnh: $e')));
+    }
   }
 
   String _getStatusText(TrangThaiHocSinh trangThai) {
@@ -287,14 +400,12 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
         hoTen: _hoTenController.text.trim(),
         ngaySinh: _ngaySinh!,
         soTheHocSinh: _soTheController.text.trim(),
-        soDienThoai:
-            _soDienThoaiController.text.trim().isEmpty
-                ? null
-                : _soDienThoaiController.text.trim(),
-        diaChi:
-            _diaChiController.text.trim().isEmpty
-                ? null
-                : _diaChiController.text.trim(),
+        soDienThoai: _soDienThoaiController.text.trim().isEmpty
+            ? null
+            : _soDienThoaiController.text.trim(),
+        diaChi: _diaChiController.text.trim().isEmpty
+            ? null
+            : _diaChiController.text.trim(),
         idLop: widget.lop.id!,
         phongSo: _phongSoController.text.trim(),
         trangThai: _trangThai,
@@ -334,5 +445,39 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
         });
       }
     }
+  }
+
+  Future<void> uploadImage(Uint8List image) async {
+
+    final response = await ImageService.sendImageForOCR(imageSource: image);
+    if (response['success'] == true) {
+      final data = response['student_info'];
+      setState(() {
+        _hoTenController.text = data['full_name'].toString().decodeUnicodeEscapes() ?? '';
+        _soTheController.text = data['student_id'] ?? '';
+        if (data['birth_date'] != null) {
+          try {
+            final parts = data['birth_date'].split('/');
+            if (parts.length == 3) {
+              final day = int.parse(parts[0]);
+              final month = int.parse(parts[1]);
+              final year = int.parse(parts[2]);
+              _ngaySinh = DateTime(year, month, day);
+            }
+          } catch (e) {
+            // Ignore parsing errors
+            debugPrint(e.toString());
+          }
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã nhập thông tin từ ảnh thẻ')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi xử lý ảnh: ${response['message']}')),
+      );
+    }
+
   }
 }

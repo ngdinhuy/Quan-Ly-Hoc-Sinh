@@ -58,6 +58,8 @@ class HocSinh {
     );
   }
 
+
+
   static TrangThaiHocSinh _parseTrangThai(String? status) {
     switch (status) {
       case 'tam_nghi':
@@ -85,6 +87,7 @@ class HocSinh {
       'ho_ten': hoTen,
       'ngay_sinh': Timestamp.fromDate(ngaySinh),
       'so_the_hoc_sinh': soTheHocSinh,
+      'mat_khau': matKhau,
       'so_dien_thoai': soDienThoai,
       'dia_chi': diaChi,
       'id_lop': idLop,

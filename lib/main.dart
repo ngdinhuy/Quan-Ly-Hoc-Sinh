@@ -1,14 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:quan_ly_hoc_sinh/screens/auth_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/chon_loai_vai_tro_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_khuon_mat/xac_thuc_khuon_mat_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_the/xac_thuc_the_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import 'firebase_options.dart';
 import 'dart:developer' as developer;
 
 Future<void> main() async {
-  print("run app");
   WidgetsFlutterBinding.ensureInitialized();
   LocalDataService.instance.init();
   try {
@@ -65,64 +68,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _isLoading = false;
-
-  // Future<void> _signInWithGoogle() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   try {
-  //     final GoogleSignIn googleSignIn = GoogleSignIn();
-  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  //
-  //     if (googleUser == null) {
-  //       throw Exception('Google sign in was cancelled');
-  //     }
-  //
-  //     final GoogleSignInAuthentication googleAuth =
-  //         await googleUser.authentication;
-  //     final credential = GoogleAuthProvider.credential(
-  //       accessToken: googleAuth.accessToken,
-  //       idToken: googleAuth.idToken,
-  //     );
-  //
-  //     final UserCredential userCredential = await FirebaseAuth.instance
-  //         .signInWithCredential(credential);
-  //
-  //     if (userCredential.user != null) {
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text(
-  //               'Đăng nhập thành công! Xin chào ${userCredential.user!.displayName ?? 'User'}',
-  //             ),
-  //             backgroundColor: Colors.green,
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     developer.log( "Lỗi đăng nhập: ${e.toString()}", name: "HuyND");
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Lỗi đăng nhập: ${e.toString()}'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-  //     }
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
-    return AuthScreen();
+    return kIsWeb ? const AuthScreen() : ChonLoaiVaiTroScreen();
   }
 }

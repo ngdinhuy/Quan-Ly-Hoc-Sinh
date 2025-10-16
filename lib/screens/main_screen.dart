@@ -58,6 +58,8 @@ class _MainScreenState extends State<MainScreen> {
     switch (widget.user.role) {
       case app_user.UserRole.admin:
         return true; // Admin can access everything
+      case app_user.UserRole.phuhuynh:
+        return false;
       case app_user.UserRole.giaovien:
         return [
           'giao_vien',
@@ -88,6 +90,8 @@ class _MainScreenState extends State<MainScreen> {
         return 'Giáo viên';
       case app_user.UserRole.hocsinh:
         return 'Học sinh';
+      case app_user.UserRole.phuhuynh:
+        return 'Phụ huynh';
     }
   }
 
