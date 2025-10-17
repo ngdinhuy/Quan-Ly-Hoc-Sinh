@@ -3,9 +3,16 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:quan_ly_hoc_sinh/models/xin_ra_vao.dart';
+import 'package:quan_ly_hoc_sinh/services/image_service.dart';
+import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
+import 'package:quan_ly_hoc_sinh/services/xin_ra_vao_service.dart';
+
 
 class XacThucKhuonMatScreen extends StatefulWidget {
-  const XacThucKhuonMatScreen({Key? key}) : super(key: key);
+  final bool isUploadFace;
+  final String idRaVao;
+  const XacThucKhuonMatScreen({Key? key, this.isUploadFace = false, this.idRaVao = ""}) : super(key: key);
 
   @override
   State<XacThucKhuonMatScreen> createState() => _XacThucKhuonMatScreenState();
@@ -139,25 +146,50 @@ class _XacThucKhuonMatScreenState extends State<XacThucKhuonMatScreen> {
       // Convert image to Base64
       final String base64Image = uint8ListToBase64(imageBytes);
 
-      // TODO: Implement your API call here
-      // Example:
-      // final response = await YourApiService.uploadFaceImage(base64Image);
-
-      await Future.delayed(const Duration(seconds: 2)); // Simulated API call
-
+      final response = await ImageService.uploadFaceImage(imageData: imageBytes, studentId: LocalDataService.instance.getId()!, isUpload: widget.isUploadFace);
+      String message = "";
+      if (widget.isUploadFace) {
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cập nhật khuôn mặt thành công!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cập nhật khuôn mặt thất bại: ${response['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        if (response['is_match'] == true) {
+          _updateRaVao();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Xác thực khuôn mặt thành công!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Xác thực khuôn mặt thất bại!'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+      // Show success message
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
       });
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Xác thực khuôn mặt thành công!'),
-          backgroundColor: Colors.green,
-        ),
-      );
 
     } catch (e) {
       setState(() {
@@ -170,6 +202,24 @@ class _XacThucKhuonMatScreenState extends State<XacThucKhuonMatScreen> {
         ),
       );
     }
+  }
+
+
+  Future<void> _updateRaVao() async {
+    if (widget.idRaVao.isEmpty) return;
+    final record = await XinRaVaoService.getXinRaVaoById(widget.idRaVao);
+    if (record == null) return;
+    final updatedRecord = record.copyWith(
+      trangThai: TrangThaiXin.daVao,
+      thoiGianVaoThucTe: DateTime.now(),
+    );
+
+    await XinRaVaoService.updateXinRaVao(record.id!, updatedRecord);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã check-in thành công')),
+    );
+
   }
 
   String uint8ListToBase64(Uint8List bytes) {
@@ -186,7 +236,7 @@ class _XacThucKhuonMatScreenState extends State<XacThucKhuonMatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xác thực khuôn mặt'),
+        title: Text(widget.isUploadFace ? 'Cập nhật khuôn mặt' : 'Xác thực khuôn mặt'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

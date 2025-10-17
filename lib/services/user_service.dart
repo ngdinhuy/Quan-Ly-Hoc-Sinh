@@ -71,7 +71,7 @@ class UserService {
           .collection(collection)
           .doc(firebaseUser.uid)
           .update({'last_login': Timestamp.fromDate(DateTime.now())});
-      _determineUserRole(firebaseUser.email ?? '');
+      await _determineUserRole(firebaseUser.email ?? '');
       return app_user.UserModel.fromFirestore(doc);
     } else {
       // Create new user
@@ -118,7 +118,7 @@ class UserService {
             .where('email', isEqualTo: email)
             .limit(1)
             .get();
-
+    debugPrint("HuyND Teacher Query Docs: ${teacherQuery.docs.first.id}");
     if (teacherQuery.docs.isNotEmpty) {
       LocalDataService.instance.saveRole(app_user.UserRole.giaovien);
       LocalDataService.instance.saveId(teacherQuery.docs.first.id);

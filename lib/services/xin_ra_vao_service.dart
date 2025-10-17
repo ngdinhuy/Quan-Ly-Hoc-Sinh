@@ -135,4 +135,55 @@ class XinRaVaoService {
         return 'tu_choi';
     }
   }
+
+  static Future<List<XinRaVao>> filterXinRaVaoByIdHs({
+    required String idHs,
+    TrangThaiXin? trangThai,
+    LoaiXin? loai,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    Query query = FirebaseService.firestore
+        .collection(collection)
+        .where('id_hs', isEqualTo: idHs);
+
+    // Filter by request status if provided
+    if (trangThai != null) {
+      query = query.where('trang_thai', isEqualTo: _getTrangThaiString(trangThai));
+    }
+
+    // Filter by request type if provided
+    if (loai != null) {
+      String loaiString;
+      switch (loai) {
+        case LoaiXin.xinRa:
+          loaiString = 'xin_ra';
+          break;
+        case LoaiXin.vaoLai:
+          loaiString = 'vao_lai';
+          break;
+        case LoaiXin.tamNghi:
+          loaiString = 'tam_nghi';
+          break;
+      }
+      query = query.where('loai', isEqualTo: loaiString);
+    }
+
+    // Add date range filter if provided
+    if (fromDate != null && toDate != null) {
+      query = query.where('thoi_gian_xin',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(fromDate))
+          .where('thoi_gian_xin',
+          isLessThanOrEqualTo: Timestamp.fromDate(toDate));
+    }
+
+    // Order by created time in descending order
+    query = query.orderBy('created_at', descending: true);
+    final querySnapshot = await query.get();
+
+    return querySnapshot.docs
+        .map((doc) => XinRaVao.fromFirestore(doc))
+        .toList();
+  }
+
 }

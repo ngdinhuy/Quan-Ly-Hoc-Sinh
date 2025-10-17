@@ -15,9 +15,17 @@ class DangNhapHocSinhScreen extends StatefulWidget {
 class _DangNhapHocSinhScreenState extends State<DangNhapHocSinhScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final LocalDataService _localDataService = LocalDataService.instance;
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkAuth();
+  }
 
   @override
   void dispose() {
@@ -151,5 +159,17 @@ class _DangNhapHocSinhScreenState extends State<DangNhapHocSinhScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkAuth() async {
+    if (_localDataService.getId() != null  && _localDataService.getRole() == UserRole.hocsinh) {
+      HocSinh? hocSinh = await HocSinhService.getHocSinhById(_localDataService.getId()!);
+      debugPrint("Auto login hoc sinh: $hocSinh");
+      if (hocSinh != null && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainHocSinhScreen(hocSinh: hocSinh)),
+        );
+      }
+    }
   }
 }

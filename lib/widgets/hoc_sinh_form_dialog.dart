@@ -38,7 +38,6 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
   bool _isLoading = false;
   Uint8List? _selectedImage;
   String? _imageUrl;
-  bool _isUploading = false;
 
   @override
   void initState() {
@@ -341,7 +340,7 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
       final picker = ImagePicker();
       final picked = await picker.pickImage(source: ImageSource.gallery);
       if (picked == null) return;
-      final Uint8List? bytesFromPicker = await picked!.readAsBytes();
+      final Uint8List? bytesFromPicker = await picked.readAsBytes();
       if (bytesFromPicker != null) {
         setState(() {
           _selectedImage = bytesFromPicker;
@@ -453,7 +452,7 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
     if (response['success'] == true) {
       final data = response['student_info'];
       setState(() {
-        _hoTenController.text = data['full_name'].toString().decodeUnicodeEscapes() ?? '';
+        _hoTenController.text = data['full_name'].toString().decodeUnicodeEscapes() ;
         _soTheController.text = data['student_id'] ?? '';
         if (data['birth_date'] != null) {
           try {

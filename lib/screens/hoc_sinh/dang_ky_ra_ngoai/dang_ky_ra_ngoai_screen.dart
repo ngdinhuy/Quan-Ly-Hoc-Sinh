@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:quan_ly_hoc_sinh/models/lop.dart';
+import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 
 import '../../../models/hoc_sinh.dart';
 import '../../../models/user.dart';
@@ -22,6 +24,8 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
   DateTime _thoiGianRa = DateTime.now();
   DateTime _thoiGianVaoDuKien = DateTime.now().add(const Duration(hours: 2));
   HocSinh? hocSinh = null;
+  Lop? lop = null;
+  LocalDataService localDataService = LocalDataService.instance;
 
   @override
   void dispose() {
@@ -35,9 +39,11 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
   }
 
   Future<void> _fetchHocSinh() async {
-    UserModel? user = await UserService.getCurrentUser();
-    if (user == null) return;
-    HocSinh? fetchedHocSinh = await HocSinhService.getHocSinhByIdUser(user.id);
+    if (localDataService.getId() == null) return;
+    HocSinh? fetchedHocSinh = await HocSinhService.getHocSinhById(
+      localDataService.getId()!,
+    );
+    debugPrint("Fetched HocSinh: ${fetchedHocSinh?.toFirestore()}");
     setState(() {
       hocSinh = fetchedHocSinh;
     });
@@ -46,7 +52,9 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
   Future<void> _selectTime(bool isTimeOut) async {
     final TimeOfDay? time = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(isTimeOut ? _thoiGianRa : _thoiGianVaoDuKien),
+      initialTime: TimeOfDay.fromDateTime(
+        isTimeOut ? _thoiGianRa : _thoiGianVaoDuKien,
+      ),
     );
 
     if (time != null) {
@@ -74,18 +82,34 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Implement submission logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đang xử lý yêu cầu...')),
-      );
-      // UserModel? user = await UserService.getCurrentUser();
-      // if (user == null) return;
-      // HocSinh? hocSinh = await HocSinhService.getHocSinhByIdUser(user.id);
-      if(hocSinh == null) return;
+    try {
+      if (_formKey.currentState?.validate() ?? false) {
+        // TODO: Implement submission logic
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Đang xử lý yêu cầu...')));
+        print("hocSinh: ${hocSinh}");
+        if (hocSinh == null) return;
 
-      XinRaVao xinRaVao = XinRaVao(idHs: hocSinh!.id!, hoTenHs: hocSinh!.hoTen, soTheHocSinh: hocSinh!.soTheHocSinh, idLop: hocSinh!.idLop, lyDo: _lyDoController.text, nguon: NguonXin.appHs, loai: LoaiXin.xinRa, thoiGianXin: _thoiGianRa, createdAt: DateTime.now(), thoiGianVaoDuKien: _thoiGianVaoDuKien);
-      await XinRaVaoService.createXinRaVao(xinRaVao);
+        XinRaVao xinRaVao = XinRaVao(
+          idHs: hocSinh!.id!,
+          hoTenHs: hocSinh!.hoTen,
+          soTheHocSinh: hocSinh!.soTheHocSinh,
+          idLop: hocSinh!.idLop,
+          lyDo: _lyDoController.text,
+          nguon: NguonXin.appHs,
+          loai: LoaiXin.xinRa,
+          thoiGianXin: _thoiGianRa,
+          createdAt: DateTime.now(),
+          thoiGianVaoDuKien: _thoiGianVaoDuKien,
+        );
+        await XinRaVaoService.createXinRaVao(xinRaVao);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi gửi yêu cầu: ${e.toString()}')),
+      );
     }
   }
 
@@ -118,40 +142,52 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
     );
   }
 
-  Widget _buildInfoSection() {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Thông tin học sinh',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+    Widget _buildInfoSection() {
+      return Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Thông tin học sinh',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow(Icons.person, 'Họ và tên:', 'Nguyễn Văn A'),
-            _buildInfoRow(
-              Icons.calendar_today,
-              'Ngày sinh:',
-              '01/01/2005',
-            ),
-            _buildInfoRow(
-              Icons.credit_card,
-              'Số thẻ học sinh:',
-              'HS123456',
-            ),
-            _buildInfoRow(Icons.class_, 'Lớp:', '12A1'),
-          ],
+              const SizedBox(height: 16),
+              if (hocSinh != null) ...[
+                _buildInfoRow(Icons.person, 'Họ và tên:', hocSinh!.hoTen),
+                _buildInfoRow(
+                  Icons.calendar_today,
+                  'Ngày sinh:',
+                  DateFormat('dd/MM/yyyy').format(hocSinh!.ngaySinh),
+                ),
+                _buildInfoRow(
+                  Icons.credit_card,
+                  'Số thẻ học sinh:',
+                  hocSinh!.soTheHocSinh,
+                ),
+                _buildInfoRow(
+                  Icons.class_,
+                  'Lớp:',
+                  hocSinh!.idLop ?? 'Chưa có lớp',
+                ),
+              ] else
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildTimeSection() {
     return Card(
@@ -174,13 +210,13 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
               Icons.exit_to_app,
               'Thời gian xin ra:',
               _formatDateTime(_thoiGianRa),
-                  () => _selectTime(true),
+              () => _selectTime(true),
             ),
             _buildTimeRow(
               Icons.input,
               'Thời gian xin vào:',
               _formatDateTime(_thoiGianVaoDuKien),
-                  () => _selectTime(false),
+              () => _selectTime(false),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -213,10 +249,7 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
         children: [
           Icon(icon, color: Colors.blue),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(width: 8),
           Text(value),
         ],
@@ -225,11 +258,11 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
   }
 
   Widget _buildTimeRow(
-      IconData icon,
-      String label,
-      String value,
-      VoidCallback onTap,
-      ) {
+    IconData icon,
+    String label,
+    String value,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -238,10 +271,7 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
           children: [
             Icon(icon, color: Colors.blue),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
             Text(value),
           ],

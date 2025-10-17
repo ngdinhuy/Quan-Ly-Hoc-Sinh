@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:quan_ly_hoc_sinh/models/giao_vien.dart';
 import 'package:quan_ly_hoc_sinh/models/hoc_sinh.dart';
 import 'package:quan_ly_hoc_sinh/screens/component_widget/google_login_button.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/main_giao_vien/main_giao_vien_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/main/main_hoc_sinh.dart';
 import 'package:quan_ly_hoc_sinh/screens/main_screen.dart';
+import 'package:quan_ly_hoc_sinh/services/giao_vien_service.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import 'package:quan_ly_hoc_sinh/models/user.dart';
 
@@ -19,8 +22,8 @@ class DangNhapGiaoVienScreen extends StatefulWidget {
 
 class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
   bool _isLoading = false;
-  bool _isInitializing = true;
-  LocalDataService localDataService = LocalDataService.instance;
+  bool _isInitializing = false;
+  LocalDataService _localDataService = LocalDataService.instance;
 
   @override
   void initState() {
@@ -81,6 +84,14 @@ class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
   }
 
   Future<void> _checkAuth() async {
-
+    if (_localDataService.getId() != null  && _localDataService.getRole() == UserRole.giaovien) {
+      GiaoVien? giaoVien = await GiaoVienService.getGiaoVienById(_localDataService.getId()!);
+      debugPrint("Auto login hoc sinh: $giaoVien");
+      if (giaoVien != null && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainGiaoVienScreen()),
+        );
+      }
+    }
   }
 }

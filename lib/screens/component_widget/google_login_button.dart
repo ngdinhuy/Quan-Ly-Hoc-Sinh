@@ -31,7 +31,6 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
             backgroundColor: Colors.green,
           ),
         );
-
         // Call the onLoginSuccess callback if provided
         if (widget.onLoginSuccess != null) {
           widget.onLoginSuccess!();

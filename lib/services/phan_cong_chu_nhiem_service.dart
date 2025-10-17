@@ -79,4 +79,50 @@ class PhanCongChuNhiemService {
       throw Exception('Failed to delete assignment: $e');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getClassesByTeacherId(String idGiaoVien) async {
+    try {
+      // Get all homeroom assignments for this teacher
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('phan_cong_chu_nhiem')
+          .where('id_gv', isEqualTo: idGiaoVien)
+          .orderBy('created_at', descending: true)
+          .get();
+
+      List<PhanCongChuNhiem> assignments = snapshot.docs
+          .map((doc) => PhanCongChuNhiem.fromFirestore(doc))
+          .toList();
+
+      // Filter active assignments (no end date or end date is in the future)
+      assignments = assignments.where((assignment) =>
+      assignment.denNgay == null || assignment.denNgay!.isAfter(DateTime.now())
+      ).toList();
+
+      // For each assignment, get the class information
+      List<Map<String, dynamic>> classesWithInfo = [];
+
+      for (var assignment in assignments) {
+        DocumentSnapshot classDoc = await FirebaseFirestore.instance
+            .collection('lop')
+            .doc(assignment.idLop)
+            .get();
+
+        if (classDoc.exists) {
+          Map<String, dynamic> classData = classDoc.data() as Map<String, dynamic>;
+          classData['id'] = classDoc.id;
+
+          classesWithInfo.add({
+            'lop': classData,
+            'assignment': assignment.toFirestore(),
+            'assignmentId': assignment.id,
+          });
+        }
+      }
+
+      return classesWithInfo;
+    } catch (e) {
+      throw Exception('Failed to fetch teacher classes: $e');
+    }
+  }
+
 }

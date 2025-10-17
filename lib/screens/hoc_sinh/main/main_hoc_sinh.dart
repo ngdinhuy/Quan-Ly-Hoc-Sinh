@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/dang_ky_ra_ngoai/dang_ky_ra_ngoai_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/lich_su_ra_vao/lich_su_ra_vao_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_khuon_mat/xac_thuc_khuon_mat_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_the/xac_thuc_the_screen.dart';
 import '../../../models/hoc_sinh.dart';
 
 class MainHocSinhScreen extends StatefulWidget {
@@ -106,24 +110,34 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
             "Đăng ký ra ngoài",
             Icons.exit_to_app,
             Colors.blue,
-                () => Navigator.pushNamed(context, '/dangky-ra-ngoai'),
+                () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DangKyRaNgoaiScreen())),
           ),
-          const SizedBox(height: 16),
-          _actionButton(
-            "Quét khuôn mặt",
-            Icons.face,
-            Colors.blue.shade700,
-                () {
-              // Handle face scan
-            },
-          ),
+          // const SizedBox(height: 16),
+          // _actionButton(
+          //   "Quét khuôn mặt",
+          //   Icons.face,
+          //   Colors.blue.shade700,
+          //       () {
+          //         Navigator.push(context, MaterialPageRoute(builder: (context) => const XacThucKhuonMatScreen()));
+          //   },
+          // ),
           const SizedBox(height: 16),
           _actionButton(
             "Lịch sử ra vào",
             Icons.history,
             Colors.blue.shade500,
                 () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const LichSuRaVaoScreen()));
               // Navigate to history screen
+            },
+          ),
+          const SizedBox(height: 16),
+          _actionButton(
+            "Cập nhật khuôn mặt",
+            Icons.face,
+            Colors.blue.shade700,
+                () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const XacThucKhuonMatScreen(isUploadFace: true,)));
             },
           ),
         ],

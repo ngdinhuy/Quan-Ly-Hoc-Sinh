@@ -38,7 +38,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
     });
 
     try {
-      final lopList = await LopService.getLopByTruong(''); // Load all classes
+      final lopList = await LopService.getAllLop(); // Load all classes
       setState(() {
         _lopList = lopList;
       });

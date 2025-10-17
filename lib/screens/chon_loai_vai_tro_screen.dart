@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:quan_ly_hoc_sinh/models/giao_vien.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/dang_nhap_giao_vien/dang_nhap_giao_vien_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/main_giao_vien/main_giao_vien_screen.dart';
+import 'package:quan_ly_hoc_sinh/services/giao_vien_service.dart';
 import '../models/hoc_sinh.dart';
 import '../models/user.dart';
 import '../services/hoc_sinh_service.dart';
 import '../services/local_data_service.dart';
-import 'hoc_sinh/dang_nhap_hoc_sinh/dang_nhap_screen.dart';
+import 'hoc_sinh/dang_nhap_hoc_sinh/dang_nhap_hoc_sinh_screen.dart';
 import 'hoc_sinh/main/main_hoc_sinh.dart';
 
 class ChonLoaiVaiTroScreen extends StatefulWidget {
@@ -73,28 +77,31 @@ class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
 
   Future<void> _handleContinue() async {
     if (selectedType == 'Học Sinh') {
-      // Check if student ID exists in local storage
-      final idHocSinh = LocalDataService.instance.getIdHocSinh();
-      print('idHocSinh: $idHocSinh');
+      final idHocSinh = LocalDataService.instance.getId();
       if (idHocSinh == null || idHocSinh.isEmpty) {
-        // If no ID found, navigate to login screen
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DangNhapHocSinhScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapHocSinhScreen()));
       } else {
-        // ID exists, navigate to main student screen
         HocSinh? hocSinh = await HocSinhService.getHocSinhById(idHocSinh);
         if (hocSinh == null) {
-          // If student data not found, navigate to login screen
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DangNhapHocSinhScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapHocSinhScreen()));
           return;
+        } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainHocSinhScreen(hocSinh: hocSinh)));
         }
       }
     } else if (selectedType == 'Giáo Viên') {
       // Similar logic for teachers
-      final idGiaoVien = LocalDataService.instance.getIdGiaoVien();
-
+      final idGiaoVien = LocalDataService.instance.getId();
       if (idGiaoVien == null || idGiaoVien.isEmpty) {
-        Navigator.pushNamed(context, '/login_giao_vien');
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapGiaoVienScreen()));
       } else {
+        final GiaoVien? giaoVien = await GiaoVienService.getGiaoVienById(idGiaoVien);
+        if (giaoVien == null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapGiaoVienScreen()));
+          return;
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MainGiaoVienScreen()));
+        }
         Navigator.pushNamed(context, '/main_giao_vien');
       }
     }
@@ -116,7 +123,7 @@ class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
           final HocSinh? hocSinh = await HocSinhService.getHocSinhById(localDataService.getId()!);
           if (mounted && hocSinh != null) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => MainHocSinhScreen(hocSinh: hocSinh!)),
+              MaterialPageRoute(builder: (context) => MainHocSinhScreen(hocSinh: hocSinh)),
             );
           }
         }
