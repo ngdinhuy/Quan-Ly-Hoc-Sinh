@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:quan_ly_hoc_sinh/models/giao_vien.dart';
+import 'package:quan_ly_hoc_sinh/models/phu_huynh.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/dang_nhap_giao_vien/dang_nhap_giao_vien_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/main_giao_vien/main_giao_vien_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/danh_nhap_phu_huynh/dang_nhap_phu_huynh_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/main_phu_huynh/main_phu_huynh_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/giao_vien_service.dart';
+import 'package:quan_ly_hoc_sinh/services/phu_huynh_service.dart';
 import '../models/hoc_sinh.dart';
 import '../models/user.dart';
 import '../services/hoc_sinh_service.dart';
@@ -34,6 +38,8 @@ class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
             _buildUserTypeCard('Giáo Viên', Icons.school),
             SizedBox(height: 24),
             _buildUserTypeCard('Học Sinh', Icons.person),
+            SizedBox(height: 24),
+            _buildUserTypeCard('Phụ huynh', Icons.family_restroom),
             SizedBox(height: 40),
             if (selectedType != null)
               ElevatedButton(
@@ -102,7 +108,20 @@ class _ChonLoaiVaiTroScreenState extends State<ChonLoaiVaiTroScreen> {
         } else {
           Navigator.push(context, MaterialPageRoute(builder: (context) => MainGiaoVienScreen()));
         }
-        Navigator.pushNamed(context, '/main_giao_vien');
+      }
+    } else if (selectedType == 'Phụ huynh') {
+      // Handle parent login similarly
+      final idPhuHuynh = LocalDataService.instance.getId();
+      if (idPhuHuynh == null || idPhuHuynh.isEmpty) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapPhuHuynhScreen()));
+      } else {
+        final PhuHuynh? phuHuynh = await PhuHuynhService.getPhuHuynhById(idPhuHuynh);
+        if (phuHuynh == null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DangNhapPhuHuynhScreen()));
+          return;
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MainPhuHuynhScreen()));
+        }
       }
     }
   }

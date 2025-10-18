@@ -242,7 +242,7 @@ class _ThemHocSinhRaVaoDialogState extends State<ThemHocSinhRaVaoDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Thông tin học sinh',
+              'Thông tin',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             TextButton.icon(

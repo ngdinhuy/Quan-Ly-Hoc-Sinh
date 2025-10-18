@@ -391,8 +391,8 @@ class FaceOverlayPainter extends CustomPainter {
     final Path ovalPath = Path()
       ..addOval(Rect.fromCenter(
           center: Offset(centerX, centerY),
-          width: radius * 1.3,
-          height: radius * 1.6
+          width: radius * 1.7,
+          height: radius * 1.9
       ));
 
     // Combine paths using difference operation to create a cutout
@@ -418,8 +418,8 @@ class FaceOverlayPainter extends CustomPainter {
     canvas.drawOval(
       Rect.fromCenter(
           center: Offset(centerX, centerY),
-          width: radius * 1.3,
-          height: radius * 1.6
+          width: radius * 1.7,
+          height: radius * 1.9
       ),
       outlinePaint,
     );

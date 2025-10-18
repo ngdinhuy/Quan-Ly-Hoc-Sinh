@@ -46,6 +46,7 @@ class _LichSuRaVaoScreenState extends State<LichSuRaVaoScreen> {
           trangThai: trangThai,
         );
       } catch (e) {
+        debugPrint(e.toString());
         _futureLichSuRaVao = Future.error(
           'Lỗi khi tải dữ liệu: ${e.toString()}',
         );

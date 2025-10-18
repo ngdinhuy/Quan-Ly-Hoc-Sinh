@@ -37,6 +37,7 @@ class UserService {
       await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
     } else {
       // ✅ Android / iOS
+      await GoogleSignIn().signOut();
       final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         throw Exception('Google sign in was cancelled');
@@ -48,8 +49,7 @@ class UserService {
         idToken: googleAuth.idToken,
       );
 
-      userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
     }
 
     final User? firebaseUser = userCredential.user;
@@ -64,7 +64,7 @@ class UserService {
             .collection(collection)
             .doc(firebaseUser.uid)
             .get();
-
+    debugPrint("HuyND User Doc: ${doc.data()}");
     if (doc.exists) {
       // Update last login
       await FirebaseService.firestore
@@ -75,7 +75,9 @@ class UserService {
       return app_user.UserModel.fromFirestore(doc);
     } else {
       // Create new user
+      debugPrint("HuyND Creating new user for: ${firebaseUser.email}");
       final role = await _determineUserRole(firebaseUser.email ?? '');
+      debugPrint('HuyND Determined Role: $role');
       final newUser = app_user.UserModel(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '',
@@ -110,6 +112,7 @@ class UserService {
         return app_user.UserRole.admin;
       }
     }
+    debugPrint("HuyND done admin check");
 
     // Check if email matches a teacher
     final teacherQuery =
@@ -118,12 +121,12 @@ class UserService {
             .where('email', isEqualTo: email)
             .limit(1)
             .get();
-    debugPrint("HuyND Teacher Query Docs: ${teacherQuery.docs.first.id}");
     if (teacherQuery.docs.isNotEmpty) {
       LocalDataService.instance.saveRole(app_user.UserRole.giaovien);
       LocalDataService.instance.saveId(teacherQuery.docs.first.id);
       return app_user.UserRole.giaovien;
     }
+    debugPrint("HuyND done teacher check");
 
     // Check if email matches a student
     final studentQuery =
@@ -138,14 +141,15 @@ class UserService {
       LocalDataService.instance.saveId(studentQuery.docs.first.id);
       return app_user.UserRole.hocsinh;
     }
-
+    debugPrint("HuyND done student check");
     // Check if email matches a parent
     final parentQuery =
         await FirebaseService.firestore
             .collection('phu_huynh')
-            .where('email', isEqualTo: email)
+            .where('gmail', isEqualTo: email)
             .limit(1)
             .get();
+    debugPrint("HuyND Teacher Query Docs: ${teacherQuery.docs}");
     if (parentQuery.docs.isNotEmpty) {
       LocalDataService.instance.saveRole(app_user.UserRole.phuhuynh);
       LocalDataService.instance.saveId(parentQuery.docs.first.id);
