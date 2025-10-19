@@ -24,6 +24,8 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
   List<ThamPh> _thamPhList = [];
   List<HocSinh> _hocSinhList = [];
   List<Lop> _lopList = [];
+  Lop? _lop;
+  HocSinh? _hocSinh;
   bool _isLoading = false;
 
   @override
@@ -125,7 +127,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
             children: [
               if (_lopList.isNotEmpty)
                 DropdownButton<Lop>(
-                  value: _lopList.isNotEmpty ? _lopList.first : null,
+                  value:_lop ??  (_lopList.isNotEmpty ? _lopList.first : null),
                   hint: const Text('Chọn lớp'),
                   items:
                       _lopList.map((lop) {
@@ -135,6 +137,9 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                         );
                       }).toList(),
                   onChanged: (lop) {
+                    setState(() {
+                      _lop = lop;
+                    });
                     if (lop != null) {
                       _loadHocSinhByLop(lop.id!);
                     }
@@ -143,7 +148,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
               const SizedBox(width: 16),
               if (_hocSinhList.isNotEmpty)
                 DropdownButton<HocSinh>(
-                  value: _hocSinhList.isNotEmpty ? _hocSinhList.first : null,
+                  value: _hocSinh ?? (_hocSinhList.isNotEmpty ? _hocSinhList.first : null),
                   hint: const Text('Chọn học sinh'),
                   items:
                       _hocSinhList.map((hocSinh) {
@@ -155,6 +160,9 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                         );
                       }).toList(),
                   onChanged: (hocSinh) {
+                    setState(() {
+                      _hocSinh = hocSinh;
+                    });
                     if (hocSinh != null) {
                       _loadPhuHuynhByHs(hocSinh.id!);
                       _loadThamPhByHs(hocSinh.id!);
@@ -407,10 +415,10 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
       context: context,
       builder:
           (context) => PhuHuynhFormDialog(
-            hocSinh: _hocSinhList.first,
+            hocSinh: _hocSinh ?? _hocSinhList.first,
             phuHuynh: phuHuynh,
             onSaved: () {
-              _loadPhuHuynhByHs(_hocSinhList.first.id!);
+              _loadPhuHuynhByHs(_hocSinh?.id ?? _hocSinhList.first.id!);
             },
           ),
     );
@@ -423,10 +431,10 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
       context: context,
       builder:
           (context) => ThamPhFormDialog(
-            hocSinh: _hocSinhList.first,
+            hocSinh:  _hocSinh ?? _hocSinhList.first,
             thamPh: thamPh,
             onSaved: () {
-              _loadThamPhByHs(_hocSinhList.first.id!);
+              _loadThamPhByHs(_hocSinh?.id ?? _hocSinhList.first.id!);
             },
           ),
     );
@@ -451,7 +459,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                   Navigator.pop(context);
                   try {
                     await PhuHuynhService.deletePhuHuynh(phuHuynh.id!);
-                    _loadPhuHuynhByHs(_hocSinhList.first.id!);
+                    _loadPhuHuynhByHs(_hocSinh?.id ?? _hocSinhList.first.id!);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -491,7 +499,7 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                   Navigator.pop(context);
                   try {
                     await ThamPhService.deleteThamPh(thamPh.id!);
-                    _loadThamPhByHs(_hocSinhList.first.id!);
+                    _loadThamPhByHs(_hocSinh?.id ?? _hocSinhList.first.id!);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
