@@ -210,7 +210,7 @@ class _XacThucKhuonMatScreenState extends State<XacThucKhuonMatScreen> {
     final record = await XinRaVaoService.getXinRaVaoById(widget.idRaVao);
     if (record == null) return;
     final updatedRecord = record.copyWith(
-      trangThai: TrangThaiXin.daVao,
+      loai: LoaiXin.vaoLai,
       thoiGianVaoThucTe: DateTime.now(),
     );
 

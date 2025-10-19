@@ -4,7 +4,7 @@ enum NguonXin { appPh, appHs, gvNhap }
 
 enum LoaiXin { xinRa, vaoLai, tamNghi }
 
-enum TrangThaiXin { choDuyet, daDuyet, daVao, tuChoi }
+enum TrangThaiXin { choDuyet, daDuyet ,daVao, tuChoi }
 
 class XinRaVao {
   final String? id;

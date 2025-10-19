@@ -755,8 +755,7 @@ class _DanhSachRaVaoTheoLopScreenState
 
               const SizedBox(height: 16),
 
-              if (record.trangThai == TrangThaiXin.daDuyet &&
-                  record.thoiGianVaoThucTe == null)
+              if (record.trangThai == TrangThaiXin.daDuyet)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
