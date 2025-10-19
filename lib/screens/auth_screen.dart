@@ -95,7 +95,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 if (_isLoading)
                   const CircularProgressIndicator()
                 else
-                  GoogleLoginButton(),
+                  GoogleLoginButton(
+                    onLoginSuccess: _checkAuthState,
+                  ),
               ],
             ),
           ),
