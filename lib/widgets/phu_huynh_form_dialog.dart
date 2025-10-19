@@ -131,7 +131,6 @@ class _PhuHuynhFormDialogState extends State<PhuHuynhFormDialog> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.text,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
                   return null;
                 },
