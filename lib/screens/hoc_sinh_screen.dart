@@ -52,7 +52,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
       setState(() {
         _lopList = lopList;
         if (lopList.isNotEmpty) {
-          _loadHocSinhList(lopList.first.id!);
+          _loadHocSinhList(_selectedLop?.id ?? lopList.first.id!);
         }
       });
     } catch (e) {
@@ -137,7 +137,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Danh Sách Học Sinh${_lopList.isNotEmpty ? ' - ${_lopList.first.tenLop}' : ''}',
+                'Danh Sách Học Sinh ${_selectedLop?.tenLop ?? (_lopList.isNotEmpty ? ' - ${_lopList.first.tenLop}' : '')}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -145,7 +145,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
               ),
               ElevatedButton.icon(
                 onPressed:
-                    _selectedTruong != null && _lopList.isNotEmpty
+                    _selectedTruong != null && _selectedLop != null
                         ? () => _showHocSinhFormDialog()
                         : null,
                 icon: const Icon(Icons.add),
@@ -278,10 +278,10 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
       builder:
           (context) => HocSinhFormDialog(
             truong: _selectedTruong!,
-            lop: _lopList.first,
+            lop: _selectedLop ?? _lopList.first,
             hocSinh: hocSinh,
             onSaved: () {
-              _loadHocSinhList(_lopList.first.id!);
+              _loadHocSinhList(_selectedLop?.id ?? _lopList.first.id!);
             },
           ),
     );
@@ -306,7 +306,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
                   Navigator.pop(context);
                   try {
                     await HocSinhService.deleteHocSinh(hocSinh.id!);
-                    _loadHocSinhList(_lopList.first.id!);
+                    _loadHocSinhList(_selectedLop?.id ?? _lopList.first.id!);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
