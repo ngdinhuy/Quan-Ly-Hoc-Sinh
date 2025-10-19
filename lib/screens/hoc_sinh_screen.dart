@@ -18,6 +18,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
   Truong? _selectedTruong;
   List<Truong> _truongList = [];
   List<Lop> _lopList = [];
+  Lop? _selectedLop;
   List<HocSinh> _hocSinhList = [];
 
   @override
@@ -111,7 +112,7 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
               const SizedBox(width: 16),
               if (_lopList.isNotEmpty)
                 DropdownButton<Lop>(
-                  value: _lopList.isNotEmpty ? _lopList.first : null,
+                  value: _selectedLop ?? (_lopList.isNotEmpty ? _lopList.first : null),
                   hint: const Text('Chọn lớp'),
                   items:
                       _lopList.map((lop) {
@@ -121,6 +122,9 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
                         );
                       }).toList(),
                   onChanged: (lop) {
+                    setState(() {
+                      _selectedLop = lop;
+                    });
                     if (lop != null) {
                       _loadHocSinhList(lop.id!);
                     }
