@@ -17,6 +17,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
   late TabController _tabController;
   List<XinRaVao> _xinRaVaoList = [];
   List<Lop> _lopList = [];
+  Lop? _lop;
   bool _isLoading = false;
 
   @override
@@ -87,7 +88,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
             children: [
               if (_lopList.isNotEmpty)
                 DropdownButton<Lop>(
-                  value: _lopList.isNotEmpty ? _lopList.first : null,
+                  value: _lop ?? (_lopList.isNotEmpty ? _lopList.first : null),
                   hint: const Text('Chọn lớp'),
                   items:
                       _lopList.map((lop) {
@@ -97,6 +98,9 @@ class _RaVaoScreenState extends State<RaVaoScreen>
                         );
                       }).toList(),
                   onChanged: (lop) {
+                    setState(() {
+                      _lop = lop;
+                    });
                     if (lop != null) {
                       _loadXinRaVaoByLop(lop.id!);
                     }
@@ -234,10 +238,10 @@ class _RaVaoScreenState extends State<RaVaoScreen>
       context: context,
       builder:
           (context) => XinRaVaoFormDialog(
-            lop: _lopList.first,
+            lop: _lop ?? _lopList.first,
             xinRaVao: xinRaVao,
             onSaved: () {
-              _loadXinRaVaoByLop(_lopList.first.id!);
+              _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
             },
           ),
     );
@@ -252,7 +256,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
       );
 
       await XinRaVaoService.updateXinRaVao(xinRaVao.id!, updatedXinRaVao);
-      _loadXinRaVaoByLop(_lopList.first.id!);
+      _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -287,7 +291,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
                   Navigator.pop(context);
                   try {
                     await XinRaVaoService.deleteXinRaVao(xinRaVao.id!);
-                    _loadXinRaVaoByLop(_lopList.first.id!);
+                    _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Xóa yêu cầu thành công')),
