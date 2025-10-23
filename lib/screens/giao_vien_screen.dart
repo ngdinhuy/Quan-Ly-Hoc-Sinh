@@ -67,50 +67,54 @@ class _GiaoVienScreenState extends State<GiaoVienScreen> {
                 }
 
                 return Card(
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Họ Tên')),
-                      DataColumn(label: Text('Số Điện Thoại')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Chức Vụ')),
-                      DataColumn(label: Text('Thao Tác')),
-                    ],
-                    rows:
-                        giaoVienList.map((giaoVien) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Text(giaoVien.hoTen)),
-                              DataCell(Text(giaoVien.soDienThoai)),
-                              DataCell(Text(giaoVien.email ?? '')),
-                              DataCell(Text(giaoVien.chucVu ?? '')),
-                              DataCell(
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.blue,
+                  clipBehavior: Clip.antiAlias,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Họ Tên')),
+                        DataColumn(label: Text('Số Điện Thoại')),
+                        DataColumn(label: Text('Email')),
+                        DataColumn(label: Text('Chức Vụ')),
+                        DataColumn(label: Text('Thao Tác')),
+                      ],
+                      rows:
+                          giaoVienList.map((giaoVien) {
+                            return DataRow(
+                              cells: [
+                                DataCell(Text(giaoVien.hoTen)),
+                                DataCell(Text(giaoVien.soDienThoai)),
+                                DataCell(Text(giaoVien.email ?? '')),
+                                DataCell(Text(giaoVien.chucVu ?? '')),
+                                DataCell(
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          color: Colors.blue,
+                                        ),
+                                        onPressed:
+                                            () => _showGiaoVienFormDialog(
+                                              giaoVien: giaoVien,
+                                            ),
                                       ),
-                                      onPressed:
-                                          () => _showGiaoVienFormDialog(
-                                            giaoVien: giaoVien,
-                                          ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed:
+                                            () => _deleteGiaoVien(giaoVien),
                                       ),
-                                      onPressed:
-                                          () => _deleteGiaoVien(giaoVien),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                              ],
+                            );
+                          }).toList(),
+                    ),
                   ),
                 );
               },

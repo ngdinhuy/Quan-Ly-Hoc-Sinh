@@ -171,75 +171,79 @@ class _HocSinhScreenState extends State<HocSinhScreen> {
                       ),
                     )
                     : Card(
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('ID')),
-                          DataColumn(label: Text('Họ Tên')),
-                          DataColumn(label: Text('Số Thẻ')),
-                          DataColumn(label: Text('Số ĐT')),
-                          DataColumn(label: Text('Phòng Số')),
-                          DataColumn(label: Text('Trạng Thái')),
-                          DataColumn(label: Text('Thao Tác')),
-                        ],
-                        rows:
-                            _hocSinhList.map((hocSinh) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(Text(hocSinh.id ??"")),
-                                  DataCell(Text(hocSinh.hoTen)),
-                                  DataCell(Text(hocSinh.soTheHocSinh)),
-                                  DataCell(Text(hocSinh.soDienThoai ?? '')),
-                                  DataCell(Text(hocSinh.phongSo)),
-                                  DataCell(
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _getStatusColor(
-                                          hocSinh.trangThai,
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          columns: const [
+                            DataColumn(label: Text('ID')),
+                            DataColumn(label: Text('Họ Tên')),
+                            DataColumn(label: Text('Số Thẻ')),
+                            DataColumn(label: Text('Số ĐT')),
+                            DataColumn(label: Text('Phòng Số')),
+                            DataColumn(label: Text('Trạng Thái')),
+                            DataColumn(label: Text('Thao Tác')),
+                          ],
+                          rows:
+                              _hocSinhList.map((hocSinh) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(hocSinh.id ??"")),
+                                    DataCell(Text(hocSinh.hoTen)),
+                                    DataCell(Text(hocSinh.soTheHocSinh)),
+                                    DataCell(Text(hocSinh.soDienThoai ?? '')),
+                                    DataCell(Text(hocSinh.phongSo)),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
                                         ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        _getStatusText(hocSinh.trangThai),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(
+                                            hocSinh.trangThai,
+                                          ),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          _getStatusText(hocSinh.trangThai),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  DataCell(
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Colors.blue,
+                                    DataCell(
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              color: Colors.blue,
+                                            ),
+                                            onPressed:
+                                                () => _showHocSinhFormDialog(
+                                                  hocSinh: hocSinh,
+                                                ),
                                           ),
-                                          onPressed:
-                                              () => _showHocSinhFormDialog(
-                                                hocSinh: hocSinh,
-                                              ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            onPressed:
+                                                () => _deleteHocSinh(hocSinh),
                                           ),
-                                          onPressed:
-                                              () => _deleteHocSinh(hocSinh),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                  ],
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ),
           ),

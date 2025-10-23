@@ -165,53 +165,57 @@ class _RaVaoScreenState extends State<RaVaoScreen>
     }
 
     return Card(
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Học Sinh')),
-          DataColumn(label: Text('Số Thẻ')),
-          DataColumn(label: Text('Lý Do')),
-          DataColumn(label: Text('Thời Gian Xin')),
-          DataColumn(label: Text('Nguồn')),
-          DataColumn(label: Text('Thao Tác')),
-        ],
-        rows:
-            filteredList.map((xin) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(xin.hoTenHs)),
-                  DataCell(Text(xin.soTheHocSinh)),
-                  DataCell(Text(xin.lyDo)),
-                  DataCell(Text(_formatDateTime(xin.thoiGianXin))),
-                  DataCell(Text(_getNguonText(xin.nguon))),
-                  DataCell(
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (trangThai == TrangThaiXin.choDuyet) ...[
+      clipBehavior: Clip.antiAlias,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text('Học Sinh')),
+            DataColumn(label: Text('Số Thẻ')),
+            DataColumn(label: Text('Lý Do')),
+            DataColumn(label: Text('Thời Gian Xin')),
+            DataColumn(label: Text('Nguồn')),
+            DataColumn(label: Text('Thao Tác')),
+          ],
+          rows:
+              filteredList.map((xin) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(xin.hoTenHs)),
+                    DataCell(Text(xin.soTheHocSinh)),
+                    DataCell(Text(xin.lyDo)),
+                    DataCell(Text(_formatDateTime(xin.thoiGianXin))),
+                    DataCell(Text(_getNguonText(xin.nguon))),
+                    DataCell(
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (trangThai == TrangThaiXin.choDuyet) ...[
+                            IconButton(
+                              icon: const Icon(Icons.check, color: Colors.green),
+                              onPressed: () => _duyetXinRaVao(xin, true),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.cancel, color: Colors.red),
+                              onPressed: () => _duyetXinRaVao(xin, false),
+                            ),
+                          ],
                           IconButton(
-                            icon: const Icon(Icons.check, color: Colors.green),
-                            onPressed: () => _duyetXinRaVao(xin, true),
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed:
+                                () => _showXinRaVaoFormDialog(xinRaVao: xin),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.cancel, color: Colors.red),
-                            onPressed: () => _duyetXinRaVao(xin, false),
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteXinRaVao(xin),
                           ),
                         ],
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed:
-                              () => _showXinRaVaoFormDialog(xinRaVao: xin),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteXinRaVao(xin),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+        ),
       ),
     );
   }

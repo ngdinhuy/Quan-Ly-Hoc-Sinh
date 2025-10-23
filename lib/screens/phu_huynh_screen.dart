@@ -231,50 +231,54 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                     ),
                   )
                   : Card(
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Họ Tên')),
-                        DataColumn(label: Text('Số CCCD')),
-                        DataColumn(label: Text('Số ĐT')),
-                        DataColumn(label: Text('Quan Hệ')),
-                        DataColumn(label: Text('Thao Tác')),
-                      ],
-                      rows:
-                          _phuHuynhList.map((phuHuynh) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(phuHuynh.hoTen)),
-                                DataCell(Text(phuHuynh.soCccd)),
-                                DataCell(Text(phuHuynh.soDienThoai)),
-                                DataCell(Text(phuHuynh.quanHe)),
-                                DataCell(
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Colors.blue,
+                    clipBehavior: Clip.antiAlias,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Họ Tên')),
+                          DataColumn(label: Text('Số CCCD')),
+                          DataColumn(label: Text('Số ĐT')),
+                          DataColumn(label: Text('Quan Hệ')),
+                          DataColumn(label: Text('Thao Tác')),
+                        ],
+                        rows:
+                            _phuHuynhList.map((phuHuynh) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(Text(phuHuynh.hoTen)),
+                                  DataCell(Text(phuHuynh.soCccd)),
+                                  DataCell(Text(phuHuynh.soDienThoai)),
+                                  DataCell(Text(phuHuynh.quanHe)),
+                                  DataCell(
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Colors.blue,
+                                          ),
+                                          onPressed:
+                                              () => _showPhuHuynhFormDialog(
+                                                phuHuynh: phuHuynh,
+                                              ),
                                         ),
-                                        onPressed:
-                                            () => _showPhuHuynhFormDialog(
-                                              phuHuynh: phuHuynh,
-                                            ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed:
+                                              () => _deletePhuHuynh(phuHuynh),
                                         ),
-                                        onPressed:
-                                            () => _deletePhuHuynh(phuHuynh),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                                ],
+                              );
+                            }).toList(),
+                      ),
                     ),
                   ),
         ),
@@ -317,86 +321,90 @@ class _PhuHuynhScreenState extends State<PhuHuynhScreen>
                     ),
                   )
                   : Card(
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Phụ Huynh')),
-                        DataColumn(label: Text('Học Sinh')),
-                        DataColumn(label: Text('Thời Gian Đến')),
-                        DataColumn(label: Text('Thời Gian Kết Thúc')),
-                        DataColumn(label: Text('Trạng Thái')),
-                        DataColumn(label: Text('Thao Tác')),
-                      ],
-                      rows:
-                          _thamPhList.map((thamPh) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(thamPh.hoTenPh)),
-                                DataCell(Text(thamPh.hoTenHs)),
-                                DataCell(
-                                  Text(_formatDateTime(thamPh.thoiGianDen)),
-                                ),
-                                DataCell(
-                                  Text(
-                                    thamPh.thoiGianKetThuc != null
-                                        ? _formatDateTime(
-                                          thamPh.thoiGianKetThuc!,
-                                        )
-                                        : 'Chưa kết thúc',
+                    clipBehavior: Clip.antiAlias,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Phụ Huynh')),
+                          DataColumn(label: Text('Học Sinh')),
+                          DataColumn(label: Text('Thời Gian Đến')),
+                          DataColumn(label: Text('Thời Gian Kết Thúc')),
+                          DataColumn(label: Text('Trạng Thái')),
+                          DataColumn(label: Text('Thao Tác')),
+                        ],
+                        rows:
+                            _thamPhList.map((thamPh) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(Text(thamPh.hoTenPh)),
+                                  DataCell(Text(thamPh.hoTenHs)),
+                                  DataCell(
+                                    Text(_formatDateTime(thamPh.thoiGianDen)),
                                   ),
-                                ),
-                                DataCell(
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                  DataCell(
+                                    Text(
+                                      thamPh.thoiGianKetThuc != null
+                                          ? _formatDateTime(
+                                            thamPh.thoiGianKetThuc!,
+                                          )
+                                          : 'Chưa kết thúc',
                                     ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          thamPh.trangThai ==
-                                                  TrangThaiTham.dangTham
-                                              ? Colors.green
-                                              : Colors.blue,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      thamPh.trangThai == TrangThaiTham.dangTham
-                                          ? 'Đang thăm'
-                                          : 'Đã về',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                  ),
+                                  DataCell(
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Colors.blue,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            thamPh.trangThai ==
+                                                    TrangThaiTham.dangTham
+                                                ? Colors.green
+                                                : Colors.blue,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        thamPh.trangThai == TrangThaiTham.dangTham
+                                            ? 'Đang thăm'
+                                            : 'Đã về',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        onPressed:
-                                            () => _showThamPhFormDialog(
-                                              thamPh: thamPh,
-                                            ),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ),
-                                        onPressed: () => _deleteThamPh(thamPh),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                                  DataCell(
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Colors.blue,
+                                          ),
+                                          onPressed:
+                                              () => _showThamPhFormDialog(
+                                                thamPh: thamPh,
+                                              ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () => _deleteThamPh(thamPh),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                      ),
                     ),
                   ),
         ),

@@ -162,7 +162,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
 
     return Column(
       children: [
-        // Thống kê tổng quan
+        // Thống kê tổng quan (Giữ nguyên)
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -181,7 +181,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                 ),
                 _buildStatCard(
                   'Đã Duyệt',
-                  stats['daDuyet'].toString(),
+                  stats['daDuyET'].toString(), // Sửa lỗi chính tả từ code gốc
                   Colors.green,
                 ),
                 _buildStatCard(
@@ -194,20 +194,25 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
           ),
         ),
         const SizedBox(height: 16),
-        // Bảng chi tiết
+        
+        // Bảng chi tiết (Đây là phần thay đổi)
         Expanded(
           child: Card(
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Học Sinh')),
-                DataColumn(label: Text('Lớp')),
-                DataColumn(label: Text('Lý Do')),
-                DataColumn(label: Text('Thời Gian Xin')),
-                DataColumn(label: Text('Trạng Thái')),
-                DataColumn(label: Text('Nguồn')),
-              ],
-              rows:
-                  _xinRaVaoList.map((xin) {
+            clipBehavior: Clip.antiAlias, // Thêm cái này để bo góc đẹp hơn
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Học Sinh')),
+                    DataColumn(label: Text('Lớp')),
+                    DataColumn(label: Text('Lý Do')),
+                    DataColumn(label: Text('Thời Gian Xin')),
+                    DataColumn(label: Text('Trạng Thái')),
+                    DataColumn(label: Text('Nguồn')),
+                  ],
+                  rows: _xinRaVaoList.map((xin) {
                     return DataRow(
                       cells: [
                         DataCell(Text(xin.hoTenHs)),
@@ -238,6 +243,8 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                       ],
                     );
                   }).toList(),
+                ),
+              ),
             ),
           ),
         ),
@@ -254,7 +261,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
 
     return Column(
       children: [
-        // Thống kê tổng quan
+        // Thống kê tổng quan (Giữ nguyên)
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -277,20 +284,25 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
           ),
         ),
         const SizedBox(height: 16),
-        // Bảng chi tiết
+
+        // Bảng chi tiết (Đây là phần thay đổi)
         Expanded(
           child: Card(
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Phụ Huynh')),
-                DataColumn(label: Text('Học Sinh')),
-                DataColumn(label: Text('Phòng Số')),
-                DataColumn(label: Text('Thời Gian Đến')),
-                DataColumn(label: Text('Thời Gian Kết Thúc')),
-                DataColumn(label: Text('Trạng Thái')),
-              ],
-              rows:
-                  _thamPhList.map((thamPh) {
+            clipBehavior: Clip.antiAlias,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Phụ Huynh')),
+                    DataColumn(label: Text('Học Sinh')),
+                    DataColumn(label: Text('Phòng Số')),
+                    DataColumn(label: Text('Thời Gian Đến')),
+                    DataColumn(label: Text('Thời Gian Kết Thúc')),
+                    DataColumn(label: Text('Trạng Thái')),
+                  ],
+                  rows: _thamPhList.map((thamPh) {
                     return DataRow(
                       cells: [
                         DataCell(Text(thamPh.hoTenPh)),
@@ -332,13 +344,15 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                       ],
                     );
                   }).toList(),
+                ),
+              ),
             ),
           ),
         ),
       ],
     );
   }
-
+  
   Widget _buildStatCard(String title, String value, Color color) {
     return Column(
       children: [
