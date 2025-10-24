@@ -5,9 +5,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path_provider/path_provider.dart';
 
 class ImageService {
-
   static String BASE_URL = "http://103.112.211.148:5001";
 
   String uint8ListToBase64(Uint8List? bytes) {
@@ -15,6 +16,15 @@ class ImageService {
       return '';
     }
     return base64Encode(bytes);
+  }
+
+  //only for android/ios device
+  Future<File> fileFromUint8List(Uint8List data, String fileName) async {
+    final Directory tempDir = await getTemporaryDirectory();
+    final String filePath = '${tempDir.path}/$fileName';
+    final File file = File(filePath);
+    await file.writeAsBytes(data);
+    return file;
   }
 
   static Future<Map<String, dynamic>> sendImageForOCR({
@@ -29,18 +39,22 @@ class ImageService {
       if (imageSource is File) {
         // File from device
         final fileName = path.basename(imageSource.path);
-        request.files.add(await http.MultipartFile.fromPath(
-          'image',
-          imageSource.path,
-          filename: fileName,
-        ));
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            imageSource.path,
+            filename: fileName,
+          ),
+        );
       } else if (imageSource is Uint8List) {
         // Bytes (from camera, etc.)
-        request.files.add(http.MultipartFile.fromBytes(
-          'image',
-          imageSource,
-          filename: 'image.jpg',
-        ));
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            imageSource,
+            filename: 'image.jpg',
+          ),
+        );
       } else {
         throw Exception('Unsupported image source type');
       }
@@ -53,7 +67,9 @@ class ImageService {
       if (response.statusCode == 200) {
         return jsonDecode(responseData);
       } else {
-        throw Exception('Failed to process image: ${response.statusCode}, $responseData');
+        throw Exception(
+          'Failed to process image: ${response.statusCode}, $responseData',
+        );
       }
     } catch (e) {
       debugPrint('Error sending image for OCR: $e');
@@ -76,10 +92,7 @@ class ImageService {
       final base64Image = base64Encode(imageBytes);
 
       // Create request body
-      final body = {
-        'image_base64': base64Image,
-        'student_id': studentId,
-      };
+      final body = {'image_base64': base64Image, 'student_id': studentId};
 
       // Log request details (without showing the entire base64 image)
       debugPrint('FACE REQUEST PARAMS: $body', wrapWidth: 1024);
@@ -97,14 +110,15 @@ class ImageService {
       if (response.statusCode == 200) {
         return responseData;
       } else {
-        throw Exception('Failed to upload face image: ${response.statusCode}, ${response.body}');
+        throw Exception(
+          'Failed to upload face image: ${response.statusCode}, ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('Error uploading face image: $e');
       throw Exception('Failed to upload face image: $e');
     }
   }
-
 
   static Future<Map<String, dynamic>> uploadFaceImage({
     required dynamic imageData,
@@ -126,22 +140,28 @@ class ImageService {
       if (imageData is File) {
         // File from device
         final fileName = path.basename(imageData.path);
-        request.files.add(await http.MultipartFile.fromPath(
-          'image',
-          imageData.path,
-          filename: fileName,
-        ));
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            imageData.path,
+            filename: fileName,
+          ),
+        );
 
         debugPrint('=== FACE API REQUEST (MULTIPART) ===');
         debugPrint('URL: $uri');
-        debugPrint('FILE: ${imageData.path}, size: ${await imageData.length()} bytes');
+        debugPrint(
+          'FILE: ${imageData.path}, size: ${await imageData.length()} bytes',
+        );
       } else if (imageData is Uint8List) {
         // Bytes (from camera, etc.)
-        request.files.add(http.MultipartFile.fromBytes(
-          'image',
-          imageData,
-          filename: 'face.jpg',
-        ));
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            imageData,
+            filename: 'face.jpg',
+          ),
+        );
 
         debugPrint('=== FACE API REQUEST (MULTIPART) ===');
         debugPrint('URL: $uri');
@@ -168,12 +188,46 @@ class ImageService {
         final responseData = jsonDecode(response.body);
         return responseData;
       } else {
-        throw Exception('Failed to upload face image: ${response.statusCode}, ${response.body}');
+        throw Exception(
+          'Failed to upload face image: ${response.statusCode}, ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('=== FACE API ERROR ===');
       debugPrint('$e');
       throw Exception('Failed to upload face image: $e');
+    }
+  }
+
+  /// Upload image to Firebase Storage
+  static Future<String?> uploadImageToStorage(Uint8List imageFile) async {
+    try {
+      String fileName = 'images_quan_ly_hoc_sinh/${DateTime.now().millisecondsSinceEpoch}.png';
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(fileName);
+      firebase_storage.UploadTask uploadTask = ref.putData(imageFile);
+      firebase_storage.TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      print('Upload successful! URL: $downloadUrl');
+      return downloadUrl;
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  /// Xoá file khỏi Firebase Storage bằng Download URL
+  static Future<void> deleteImageFromStorage(String downloadUrl) async {
+    try {
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .refFromURL(downloadUrl);
+      await ref.delete();
+
+      print('Image deleted successfully.');
+    } catch (e) {
+      debugPrint('Error deleting image: $e');
     }
   }
 }

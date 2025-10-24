@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/quan_ly_lop_chu_nhiem/quan_ly_ra_vao_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/truc_ban/truc_ban_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/giao_vien.dart';
 import '../../../services/giao_vien_service.dart';
@@ -194,15 +195,6 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // _buildFeatureButton(
-          //   title: 'Cập nhật thông tin học sinh ra vào trường',
-          //   icon: Icons.assignment_ind,
-          //   color: Colors.green,
-          //   onPressed: () {
-          //     Navigator.pushNamed(context, '/cap-nhat-ra-vao');
-          //   },
-          // ),
-          // const SizedBox(height: 12),
           _buildFeatureButton(
             title: 'Thống kê học sinh ra vào theo lớp',
             icon: Icons.bar_chart,
@@ -218,6 +210,19 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             color: Colors.purple,
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => QuanLyLopChuNhiemScreen(isQuanLyRaVao: false)));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildFeatureButton(
+            title: 'Thông tin trực ban',
+            icon: Icons.people,
+            color: Colors.purple,
+            onPressed: () {
+              if (_giaoVien == null) return;
+              Navigator.push(context, MaterialPageRoute(builder: (context) => TrucBanScreen(
+                idGiaoVien: _giaoVien!.id!,
+                tenGiaoVien: _giaoVien!.hoTen,
+              )));
             },
           ),
           SizedBox(height: 20)

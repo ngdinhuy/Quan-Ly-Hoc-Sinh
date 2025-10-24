@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/hoc_sinh.dart';
 import 'firebase_service.dart';
 
@@ -118,5 +119,37 @@ class HocSinhService {
       return HocSinh.fromFirestore(querySnapshot.docs.first);
     }
     return null;
+  }
+
+  static Future<List<HocSinh>> getHocSinhByPhuHuynh(String phuHuynhId) async {
+    // Lấy danh sách học sinh từ phụ huynh thông qua bảng phu_huynh
+    final phuHuynhQuerySnapshot = await FirebaseService.firestore
+        .collection('phu_huynh')
+        .where(FieldPath.documentId, isEqualTo: phuHuynhId)
+        .get();
+
+    if (phuHuynhQuerySnapshot.docs.isEmpty) {
+      return [];
+    }
+
+    final phuHuynhDoc = phuHuynhQuerySnapshot.docs.first;
+    final phuHuynhData = phuHuynhDoc.data();
+    final idHs = phuHuynhData['id_hs'] as String?;
+
+    if (idHs == null) {
+      return [];
+    }
+
+    // Lấy thông tin học sinh
+    final hocSinhDoc = await FirebaseService.firestore
+        .collection(collection)
+        .doc(idHs)
+        .get();
+
+    if (hocSinhDoc.exists) {
+      return [HocSinh.fromFirestore(hocSinhDoc)];
+    }
+
+    return [];
   }
 }

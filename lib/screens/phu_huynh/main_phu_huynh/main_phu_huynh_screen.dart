@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/danh_sach_phu_huynh_tham/danh_sach_phu_huynh_tham_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/dang_ky_tham_con/dang_ky_tham_con_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/danh_sach_tham_con/danh_sach_tham_con_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai/hoc_sinh_ra_ngoai_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai_screen/hoc_sinh_ra_ngoai_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/phu_huynh.dart';
 import '../../../models/hoc_sinh.dart';
@@ -322,6 +324,16 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             _navigateToRegisterVisit();
           },
         ),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          title: "Lịch sử ra vào của con",
+          description: "Xem lịch sử ra vào của con",
+          icon: Icons.calendar_month,
+          color: Colors.green,
+          onTap: () {
+            _navigateToHistoryRaVao();
+          },
+        ),
         const SizedBox(height: 16,),
       ],
     );
@@ -437,6 +449,15 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             idPhuHuynh: loacalDateService.getId()!,
           ),
         ),
+      );
+    }
+  }
+
+  void _navigateToHistoryRaVao() {
+    if (_hocSinh != null && loacalDateService.getId() != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HocSinhRaNgoaiScreen(idHocSinh: _hocSinh!.id!, tenHocSinh: _hocSinh!.hoTen)),
       );
     }
   }

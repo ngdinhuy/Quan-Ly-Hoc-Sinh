@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quan_ly_hoc_sinh/models/lop.dart';
+import 'package:quan_ly_hoc_sinh/services/lop_service.dart';
 import '../models/xin_ra_vao.dart';
 import '../models/tham_ph.dart';
 import '../services/xin_ra_vao_service.dart';
@@ -16,6 +18,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
   late TabController _tabController;
   List<XinRaVao> _xinRaVaoList = [];
   List<ThamPh> _thamPhList = [];
+  List<Lop> _lopList = [];
   DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
   DateTime _endDate = DateTime.now();
   bool _isLoading = false;
@@ -39,6 +42,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
     });
 
     try {
+      await _loadLopList();
       await _loadReports();
     } catch (e) {
       ScaffoldMessenger.of(
@@ -72,6 +76,10 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
         context,
       ).showSnackBar(SnackBar(content: Text('Lỗi tải báo cáo: $e')));
     }
+  }
+
+  Future<void> _loadLopList() async {
+    _lopList = await LopService.getAllLop();
   }
 
   @override
@@ -216,7 +224,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                     return DataRow(
                       cells: [
                         DataCell(Text(xin.hoTenHs)),
-                        DataCell(Text(xin.idLop)),
+                        DataCell(Text(_getLopTenById(xin.idLop))),
                         DataCell(Text(xin.lyDo)),
                         DataCell(Text(_formatDateTime(xin.thoiGianXin))),
                         DataCell(
@@ -466,6 +474,14 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
       setState(() {
         _endDate = date;
       });
+    }
+  }
+  String _getLopTenById(String idLop) {
+    try {
+      Lop lop = _lopList.firstWhere((lop) => lop.id == idLop);
+      return lop.tenLop;
+    } catch (e) {
+      return idLop;
     }
   }
 }

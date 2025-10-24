@@ -14,6 +14,7 @@ class HocSinh {
   final String phongSo;
   final String? avatarTheUrl;
   final String? avatarFaceUrl;
+  String? anhTheUrl;
   final TrangThaiHocSinh trangThai;
   final Map<String, dynamic>? thongTinKhac;
   final DateTime createdAt;
@@ -30,6 +31,7 @@ class HocSinh {
     required this.phongSo,
     this.avatarTheUrl,
     this.avatarFaceUrl,
+    this.anhTheUrl,
     this.trangThai = TrangThaiHocSinh.dangHoc,
     this.thongTinKhac,
     required this.createdAt,
@@ -49,6 +51,7 @@ class HocSinh {
       phongSo: data['phong_so'] ?? '',
       avatarTheUrl: data['avatar_the_url'],
       avatarFaceUrl: data['avatar_face_url'],
+      anhTheUrl: data['anh_the_url'],
       trangThai: _parseTrangThai(data['trang_thai']),
       thongTinKhac:
           data['thong_tin_khac'] != null
@@ -94,6 +97,7 @@ class HocSinh {
       'phong_so': phongSo,
       'avatar_the_url': avatarTheUrl,
       'avatar_face_url': avatarFaceUrl,
+      'anh_the_url': anhTheUrl,
       'trang_thai': trangThaiString,
       'thong_tin_khac': thongTinKhac,
       'created_at': Timestamp.fromDate(createdAt),

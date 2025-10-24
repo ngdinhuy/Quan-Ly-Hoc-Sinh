@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -50,6 +52,9 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
       _phongSoController.text = widget.hocSinh!.phongSo;
       _ngaySinh = widget.hocSinh!.ngaySinh;
       _trangThai = widget.hocSinh!.trangThai;
+      setState(() {
+        _imageUrl = widget.hocSinh!.anhTheUrl;
+      });
     } else {
       _phongSoController.text = widget.lop.phongSo;
     }
@@ -268,22 +273,22 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: ConstrainedBox(
-                      constraints: new BoxConstraints(
-                        minWidth: 160
-                      ),
+                      constraints: new BoxConstraints(minWidth: 160),
                       child: _selectedImage != null
                           ? Image.memory(_selectedImage!, fit: BoxFit.cover)
                           : _imageUrl != null
                           ? Image.network(
                               _imageUrl!,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
                               errorBuilder: (context, error, stackTrace) {
+                                debugPrint(error.toString());
                                 return const Center(
                                   child: Icon(Icons.error_outline),
                                 );
@@ -412,6 +417,12 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
       );
 
       if (widget.hocSinh == null) {
+        if (_selectedImage != null) {
+          String? url = await ImageService.uploadImageToStorage(
+            _selectedImage!,
+          );
+          hocSinh.anhTheUrl = url;
+        }
         await HocSinhService.createHocSinh(hocSinh);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -419,6 +430,17 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
           );
         }
       } else {
+        if (_selectedImage != null) {
+          if (widget.hocSinh!.anhTheUrl != null) {
+            await ImageService.deleteImageFromStorage(
+              widget.hocSinh!.anhTheUrl!,
+            );
+          }
+          String? url = await ImageService.uploadImageToStorage(
+            _selectedImage!,
+          );
+          hocSinh.anhTheUrl = url;
+        }
         await HocSinhService.updateHocSinh(widget.hocSinh!.id!, hocSinh);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -447,12 +469,13 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
   }
 
   Future<void> uploadImage(Uint8List image) async {
-
     final response = await ImageService.sendImageForOCR(imageSource: image);
     if (response['success'] == true) {
       final data = response['student_info'];
       setState(() {
-        _hoTenController.text = data['full_name'].toString().decodeUnicodeEscapes() ;
+        _hoTenController.text = data['full_name']
+            .toString()
+            .decodeUnicodeEscapes();
         _soTheController.text = data['student_id'] ?? '';
         if (data['birth_date'] != null) {
           try {
@@ -477,6 +500,5 @@ class _HocSinhFormDialogState extends State<HocSinhFormDialog> {
         SnackBar(content: Text('Lỗi khi xử lý ảnh: ${response['message']}')),
       );
     }
-
   }
 }
