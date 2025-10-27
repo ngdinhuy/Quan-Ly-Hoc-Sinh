@@ -7,6 +7,7 @@ import '../services/khoi_service.dart';
 import '../services/lop_service.dart';
 import '../widgets/khoi_form_dialog.dart';
 import '../widgets/lop_form_dialog.dart';
+import '../widgets/scrollable_data_table.dart';
 
 class KhoiLopScreen extends StatefulWidget {
   const KhoiLopScreen({super.key});
@@ -103,13 +104,12 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
                 DropdownButton<Truong>(
                   value: _selectedTruong,
                   hint: const Text('Chọn trường'),
-                  items:
-                      _truongList.map((truong) {
-                        return DropdownMenuItem(
-                          value: truong,
-                          child: Text(truong.tenTruong),
-                        );
-                      }).toList(),
+                  items: _truongList.map((truong) {
+                    return DropdownMenuItem(
+                      value: truong,
+                      child: Text(truong.tenTruong),
+                    );
+                  }).toList(),
                   onChanged: (truong) {
                     setState(() {
                       _selectedTruong = truong;
@@ -174,69 +174,57 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
           ),
         ),
         Expanded(
-          child:
-              _khoiList.isEmpty
-                  ? const Center(
-                    child: Text(
-                      'Chưa có khối nào',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                  : Card(
-                    child: Scrollbar(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Scrollbar(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columns: const [
-                                DataColumn(label: Text('Tên Khối')),
-                                DataColumn(label: Text('Mã Khối')),
-                                DataColumn(label: Text('Ghi Chú')),
-                                DataColumn(label: Text('Thao Tác')),
-                              ],
-                              rows:
-                                  _khoiList.map((khoi) {
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(Text(khoi.tenKhoi)),
-                                        DataCell(Text(khoi.maKhoi)),
-                                        DataCell(Text(khoi.ghiChu ?? '')),
-                                        DataCell(
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.blue,
-                                                ),
-                                                onPressed:
-                                                    () => _showKhoiFormDialog(
-                                                      khoi: khoi,
-                                                    ),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.delete,
-                                                  color: Colors.red,
-                                                ),
-                                                onPressed:
-                                                    () => _deleteKhoi(khoi),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
+          child: _khoiList.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Chưa có khối nào',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : Card(
+                  child: ScrollableDataTable(
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Tên Khối')),
+                        DataColumn(label: Text('Mã Khối')),
+                        DataColumn(label: Text('Ghi Chú')),
+                        DataColumn(label: Text('Thao Tác')),
+                      ],
+                      rows: _khoiList.map((khoi) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(khoi.tenKhoi)),
+                            DataCell(Text(khoi.maKhoi)),
+                            DataCell(Text(khoi.ghiChu ?? '')),
+                            DataCell(
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () => _showKhoiFormDialog(
+                                      khoi: khoi,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () => _deleteKhoi(khoi),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
+                ),
         ),
       ],
     );
@@ -263,71 +251,59 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
           ),
         ),
         Expanded(
-          child:
-              _lopList.isEmpty
-                  ? const Center(
-                    child: Text(
-                      'Chưa có lớp nào',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                  : Card(
-                    child: Scrollbar(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Scrollbar(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columns: const [
-                                DataColumn(label: Text('Tên Lớp')),
-                                DataColumn(label: Text('Mã Lớp')),
-                                DataColumn(label: Text('Sĩ Số')),
-                                DataColumn(label: Text('Phòng Số')),
-                                DataColumn(label: Text('Thao Tác')),
-                              ],
-                              rows:
-                                  _lopList.map((lop) {
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(Text(lop.tenLop)),
-                                        DataCell(Text(lop.maLop)),
-                                        DataCell(Text(lop.siSo.toString())),
-                                        DataCell(Text(lop.phongSo)),
-                                        DataCell(
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.blue,
-                                                ),
-                                                onPressed:
-                                                    () => _showLopFormDialog(
-                                                      lop: lop,
-                                                    ),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.delete,
-                                                  color: Colors.red,
-                                                ),
-                                                onPressed:
-                                                    () => _deleteLop(lop),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
+          child: _lopList.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Chưa có lớp nào',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : Card(
+                  child: ScrollableDataTable(
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Tên Lớp')),
+                        DataColumn(label: Text('Mã Lớp')),
+                        DataColumn(label: Text('Sĩ Số')),
+                        DataColumn(label: Text('Phòng Số')),
+                        DataColumn(label: Text('Thao Tác')),
+                      ],
+                      rows: _lopList.map((lop) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(lop.tenLop)),
+                            DataCell(Text(lop.maLop)),
+                            DataCell(Text(lop.siSo.toString())),
+                            DataCell(Text(lop.phongSo)),
+                            DataCell(
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () => _showLopFormDialog(
+                                      lop: lop,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () => _deleteLop(lop),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
+                ),
         ),
       ],
     );
@@ -336,105 +312,101 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
   void _showKhoiFormDialog({Khoi? khoi}) {
     showDialog(
       context: context,
-      builder:
-          (context) => KhoiFormDialog(
-            truong: _selectedTruong!,
-            khoi: khoi,
-            onSaved: () {
-              _loadKhoiList();
-            },
-          ),
+      builder: (context) => KhoiFormDialog(
+        truong: _selectedTruong!,
+        khoi: khoi,
+        onSaved: () {
+          _loadKhoiList();
+        },
+      ),
     );
   }
 
   void _showLopFormDialog({Lop? lop}) {
     showDialog(
       context: context,
-      builder:
-          (context) => LopFormDialog(
-            truong: _selectedTruong!,
-            khoiList: _khoiList,
-            lop: lop,
-            onSaved: () {
-              _loadLopList();
-            },
-          ),
+      builder: (context) => LopFormDialog(
+        truong: _selectedTruong!,
+        khoiList: _khoiList,
+        lop: lop,
+        onSaved: () {
+          _loadLopList();
+        },
+      ),
     );
   }
 
   void _deleteKhoi(Khoi khoi) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Xác Nhận Xóa'),
-            content: Text('Bạn có chắc chắn muốn xóa khối "${khoi.tenKhoi}"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  try {
-                    await KhoiService.deleteKhoi(khoi.id!);
-                    _loadKhoiList();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Xóa khối thành công')),
-                      );
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
-                    }
-                  }
-                },
-                child: const Text('Xóa'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Xác Nhận Xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa khối "${khoi.tenKhoi}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await KhoiService.deleteKhoi(khoi.id!);
+                _loadKhoiList();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Xóa khối thành công')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                }
+              }
+            },
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
     );
   }
 
   void _deleteLop(Lop lop) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Xác Nhận Xóa'),
-            content: Text('Bạn có chắc chắn muốn xóa lớp "${lop.tenLop}"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  try {
-                    await LopService.deleteLop(lop.id!);
-                    _loadLopList();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Xóa lớp thành công')),
-                      );
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
-                    }
-                  }
-                },
-                child: const Text('Xóa'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Xác Nhận Xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa lớp "${lop.tenLop}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await LopService.deleteLop(lop.id!);
+                _loadLopList();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Xóa lớp thành công')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                }
+              }
+            },
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
     );
   }
 }
