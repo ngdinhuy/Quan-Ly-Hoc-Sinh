@@ -33,8 +33,10 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('ra_vao')) screens.add(const RaVaoScreen());
     if (_canAccess('phu_huynh')) screens.add(const PhuHuynhScreen());
     if (_canAccess('bao_cao')) screens.add(const BaoCaoScreen());
-    if (_canAccess('phan_cong_chu_nhiem')) screens.add(const PhanCongChuNhiemScreen());
-    if (_canAccess('phan_cong_truc_ban')) screens.add(const PhanCongTrucBanScreen());
+    if (_canAccess('phan_cong_chu_nhiem'))
+      screens.add(const PhanCongChuNhiemScreen());
+    if (_canAccess('phan_cong_truc_ban'))
+      screens.add(const PhanCongTrucBanScreen());
     if (_canAccess('admin')) screens.add(const AdminManagementScreen());
     return screens;
   }
@@ -217,12 +219,12 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'HỆ THỐNG QUẢN LÝ HỌC SINH',
+                  child: const Text(
+                    'QUẢN LÝ HỌC SINH TRƯỜNG DÂN TỘC NỘI TRÚ',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: Colors.red,
                     ),
                     textAlign: TextAlign.center,
                   ),

@@ -185,24 +185,26 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       )
-                      : ListView.builder(
-                        itemCount: _adminEmails.length,
-                        itemBuilder: (context, index) {
-                          final email = _adminEmails[index];
-                          return Card(
-                            child: ListTile(
-                              leading: const Icon(Icons.admin_panel_settings),
-                              title: Text(email),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
+                      : Scrollbar(
+                        child: ListView.builder(
+                          itemCount: _adminEmails.length,
+                          itemBuilder: (context, index) {
+                            final email = _adminEmails[index];
+                            return Card(
+                              child: ListTile(
+                                leading: const Icon(Icons.admin_panel_settings),
+                                title: Text(email),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () => _removeAdminEmail(email),
                                 ),
-                                onPressed: () => _removeAdminEmail(email),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
             ),
           ],

@@ -60,11 +60,11 @@ class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
                 const Icon(Icons.school, size: 64, color: Colors.blue),
                 const SizedBox(height: 16),
                 const Text(
-                  'HỆ THỐNG QUẢN LÝ HỌC SINH',
+                  'QUẢN LÝ HỌC SINH TRƯỜNG DÂN TỘC NỘI TRÚ',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: Colors.red,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -72,9 +72,7 @@ class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
                 if (_isLoading)
                   const CircularProgressIndicator()
                 else
-                  GoogleLoginButton(
-                    onLoginSuccess: _checkAuth,
-                  ),
+                  GoogleLoginButton(onLoginSuccess: _checkAuth),
               ],
             ),
           ),
@@ -84,8 +82,11 @@ class _DangNhapGiaoVienScreenState extends State<DangNhapGiaoVienScreen> {
   }
 
   Future<void> _checkAuth() async {
-    if (_localDataService.getId() != null  && _localDataService.getRole() == UserRole.giaovien) {
-      GiaoVien? giaoVien = await GiaoVienService.getGiaoVienById(_localDataService.getId()!);
+    if (_localDataService.getId() != null &&
+        _localDataService.getRole() == UserRole.giaovien) {
+      GiaoVien? giaoVien = await GiaoVienService.getGiaoVienById(
+        _localDataService.getId()!,
+      );
       debugPrint("Auto login hoc sinh: $giaoVien");
       if (giaoVien != null && mounted) {
         Navigator.of(context).pushReplacement(

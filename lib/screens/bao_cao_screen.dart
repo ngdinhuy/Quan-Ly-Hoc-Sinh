@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:quan_ly_hoc_sinh/models/lop.dart';
 import 'package:quan_ly_hoc_sinh/services/lop_service.dart';
 import '../models/xin_ra_vao.dart';
 import '../models/tham_ph.dart';
 import '../services/xin_ra_vao_service.dart';
 import '../services/tham_ph_service.dart';
+import '../utils/csv_exporter.dart';
 
 class BaoCaoScreen extends StatefulWidget {
   const BaoCaoScreen({super.key});
@@ -130,9 +132,16 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                 ),
               ),
               const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: _loadReports,
-                child: const Text('Tải Báo Cáo'),
+
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _exportToCSV,
+                icon: const Icon(Icons.download),
+                label: const Text('Tải báo cáo'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ],
           ),
@@ -189,7 +198,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                 ),
                 _buildStatCard(
                   'Đã Duyệt',
-                  stats['daDuyET'].toString(), // Sửa lỗi chính tả từ code gốc
+                  stats['daDuyet'].toString(),
                   Colors.green,
                 ),
                 _buildStatCard(
@@ -202,7 +211,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Bảng chi tiết (Đây là phần thay đổi)
         Expanded(
           child: Card(
@@ -220,37 +229,38 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                     DataColumn(label: Text('Trạng Thái')),
                     DataColumn(label: Text('Nguồn')),
                   ],
-                  rows: _xinRaVaoList.map((xin) {
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(xin.hoTenHs)),
-                        DataCell(Text(_getLopTenById(xin.idLop))),
-                        DataCell(Text(xin.lyDo)),
-                        DataCell(Text(_formatDateTime(xin.thoiGianXin))),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(xin.trangThai),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _getStatusText(xin.trangThai),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                  rows:
+                      _xinRaVaoList.map((xin) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(xin.hoTenHs)),
+                            DataCell(Text(_getLopTenById(xin.idLop))),
+                            DataCell(Text(xin.lyDo)),
+                            DataCell(Text(_formatDateTime(xin.thoiGianXin))),
+                            DataCell(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(xin.trangThai),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  _getStatusText(xin.trangThai),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        DataCell(Text(_getNguonText(xin.nguon))),
-                      ],
-                    );
-                  }).toList(),
+                            DataCell(Text(_getNguonText(xin.nguon))),
+                          ],
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -310,48 +320,49 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
                     DataColumn(label: Text('Thời Gian Kết Thúc')),
                     DataColumn(label: Text('Trạng Thái')),
                   ],
-                  rows: _thamPhList.map((thamPh) {
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(thamPh.hoTenPh)),
-                        DataCell(Text(thamPh.hoTenHs)),
-                        DataCell(Text(thamPh.phongSo)),
-                        DataCell(Text(_formatDateTime(thamPh.thoiGianDen))),
-                        DataCell(
-                          Text(
-                            thamPh.thoiGianKetThuc != null
-                                ? _formatDateTime(thamPh.thoiGianKetThuc!)
-                                : 'Chưa kết thúc',
-                          ),
-                        ),
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  thamPh.trangThai == TrangThaiTham.dangTham
-                                      ? Colors.green
-                                      : Colors.blue,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              thamPh.trangThai == TrangThaiTham.dangTham
-                                  ? 'Đang thăm'
-                                  : 'Đã về',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                  rows:
+                      _thamPhList.map((thamPh) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(thamPh.hoTenPh)),
+                            DataCell(Text(thamPh.hoTenHs)),
+                            DataCell(Text(thamPh.phongSo)),
+                            DataCell(Text(_formatDateTime(thamPh.thoiGianDen))),
+                            DataCell(
+                              Text(
+                                thamPh.thoiGianKetThuc != null
+                                    ? _formatDateTime(thamPh.thoiGianKetThuc!)
+                                    : 'Chưa kết thúc',
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
+                            DataCell(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      thamPh.trangThai == TrangThaiTham.dangTham
+                                          ? Colors.green
+                                          : Colors.blue,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  thamPh.trangThai == TrangThaiTham.dangTham
+                                      ? 'Đang thăm'
+                                      : 'Đã về',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -360,7 +371,7 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
       ],
     );
   }
-  
+
   Widget _buildStatCard(String title, String value, Color color) {
     return Column(
       children: [
@@ -476,12 +487,120 @@ class _BaoCaoScreenState extends State<BaoCaoScreen>
       });
     }
   }
+
   String _getLopTenById(String idLop) {
     try {
       Lop lop = _lopList.firstWhere((lop) => lop.id == idLop);
       return lop.tenLop;
     } catch (e) {
       return idLop;
+    }
+  }
+
+  /// Export current tab data to CSV
+  Future<void> _exportToCSV() async {
+    final currentTabIndex = _tabController.index;
+
+    if (currentTabIndex == 0) {
+      // Export HS Ra Vào data
+      await _exportXinRaVaoCSV();
+    } else {
+      // Export PH Thăm Con data
+      await _exportThamPhCSV();
+    }
+  }
+
+  /// Export Xin Ra Vao data to CSV
+  Future<void> _exportXinRaVaoCSV() async {
+    final headers = [
+      'Học Sinh',
+      'Lớp',
+      'Lý Do',
+      'Thời Gian Xin',
+      'Trạng Thái',
+      'Nguồn',
+    ];
+    final data = <List<String>>[];
+
+    for (var xin in _xinRaVaoList) {
+      data.add([
+        xin.hoTenHs,
+        _getLopTenById(xin.idLop),
+        xin.lyDo,
+        _formatDateTime(xin.thoiGianXin),
+        _getStatusText(xin.trangThai),
+        _getNguonText(xin.nguon),
+      ]);
+    }
+
+    final filename =
+        'BaoCao_RaVao_${_formatDate(_startDate)}_${_formatDate(_endDate)}.csv';
+
+    final success = await CsvExporter.exportToCSV(
+      filename: filename,
+      headers: headers,
+      data: data,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? 'Đã tải báo cáo HS Ra Vào thành công'
+                : 'Có lỗi khi tải báo cáo',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Export ThamPh data to CSV
+  Future<void> _exportThamPhCSV() async {
+    final headers = [
+      'Phụ Huynh',
+      'Học Sinh',
+      'Phòng Số',
+      'Thời Gian Đến',
+      'Thời Gian Kết Thúc',
+      'Trạng Thái',
+    ];
+    final data = <List<String>>[];
+
+    for (var thamPh in _thamPhList) {
+      data.add([
+        thamPh.hoTenPh,
+        thamPh.hoTenHs,
+        thamPh.phongSo,
+        _formatDateTime(thamPh.thoiGianDen),
+        thamPh.thoiGianKetThuc != null
+            ? _formatDateTime(thamPh.thoiGianKetThuc!)
+            : 'Chưa kết thúc',
+        thamPh.trangThai == TrangThaiTham.dangTham ? 'Đang thăm' : 'Đã về',
+      ]);
+    }
+
+    final filename =
+        'BaoCao_ThamPh_${_formatDate(_startDate)}_${_formatDate(_endDate)}.csv';
+
+    final success = await CsvExporter.exportToCSV(
+      filename: filename,
+      headers: headers,
+      data: data,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? 'Đã tải báo cáo PH Thăm Con thành công'
+                : 'Có lỗi khi tải báo cáo',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
     }
   }
 }

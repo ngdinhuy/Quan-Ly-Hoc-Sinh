@@ -183,48 +183,57 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
                     ),
                   )
                   : Card(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('Tên Khối')),
-                          DataColumn(label: Text('Mã Khối')),
-                          DataColumn(label: Text('Ghi Chú')),
-                          DataColumn(label: Text('Thao Tác')),
-                        ],
-                        rows:
-                            _khoiList.map((khoi) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(Text(khoi.tenKhoi)),
-                                  DataCell(Text(khoi.maKhoi)),
-                                  DataCell(Text(khoi.ghiChu ?? '')),
-                                  DataCell(
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Colors.blue,
+                    child: Scrollbar(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columns: const [
+                                DataColumn(label: Text('Tên Khối')),
+                                DataColumn(label: Text('Mã Khối')),
+                                DataColumn(label: Text('Ghi Chú')),
+                                DataColumn(label: Text('Thao Tác')),
+                              ],
+                              rows:
+                                  _khoiList.map((khoi) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(khoi.tenKhoi)),
+                                        DataCell(Text(khoi.maKhoi)),
+                                        DataCell(Text(khoi.ghiChu ?? '')),
+                                        DataCell(
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.blue,
+                                                ),
+                                                onPressed:
+                                                    () => _showKhoiFormDialog(
+                                                      khoi: khoi,
+                                                    ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.delete,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed:
+                                                    () => _deleteKhoi(khoi),
+                                              ),
+                                            ],
                                           ),
-                                          onPressed:
-                                              () =>
-                                                  _showKhoiFormDialog(khoi: khoi),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () => _deleteKhoi(khoi),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -263,49 +272,59 @@ class _KhoiLopScreenState extends State<KhoiLopScreen>
                     ),
                   )
                   : Card(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('Tên Lớp')),
-                          DataColumn(label: Text('Mã Lớp')),
-                          DataColumn(label: Text('Sĩ Số')),
-                          DataColumn(label: Text('Phòng Số')),
-                          DataColumn(label: Text('Thao Tác')),
-                        ],
-                        rows:
-                            _lopList.map((lop) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(Text(lop.tenLop)),
-                                  DataCell(Text(lop.maLop)),
-                                  DataCell(Text(lop.siSo.toString())),
-                                  DataCell(Text(lop.phongSo)),
-                                  DataCell(
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Colors.blue,
+                    child: Scrollbar(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columns: const [
+                                DataColumn(label: Text('Tên Lớp')),
+                                DataColumn(label: Text('Mã Lớp')),
+                                DataColumn(label: Text('Sĩ Số')),
+                                DataColumn(label: Text('Phòng Số')),
+                                DataColumn(label: Text('Thao Tác')),
+                              ],
+                              rows:
+                                  _lopList.map((lop) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(lop.tenLop)),
+                                        DataCell(Text(lop.maLop)),
+                                        DataCell(Text(lop.siSo.toString())),
+                                        DataCell(Text(lop.phongSo)),
+                                        DataCell(
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.blue,
+                                                ),
+                                                onPressed:
+                                                    () => _showLopFormDialog(
+                                                      lop: lop,
+                                                    ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.delete,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed:
+                                                    () => _deleteLop(lop),
+                                              ),
+                                            ],
                                           ),
-                                          onPressed:
-                                              () => _showLopFormDialog(lop: lop),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () => _deleteLop(lop),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

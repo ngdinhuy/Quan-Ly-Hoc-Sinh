@@ -10,13 +10,19 @@ import '../../../services/hoc_sinh_service.dart';
 class DanhSachPhuHuynhThamScreen extends StatefulWidget {
   final String idLop;
   final String tenLop;
-  const DanhSachPhuHuynhThamScreen({super.key, required this.idLop, required this.tenLop});
+  const DanhSachPhuHuynhThamScreen({
+    super.key,
+    required this.idLop,
+    required this.tenLop,
+  });
 
   @override
-  State<DanhSachPhuHuynhThamScreen> createState() => _DanhSachPhuHuynhThamScreenState();
+  State<DanhSachPhuHuynhThamScreen> createState() =>
+      _DanhSachPhuHuynhThamScreenState();
 }
 
-class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen> {
+class _DanhSachPhuHuynhThamScreenState
+    extends State<DanhSachPhuHuynhThamScreen> {
   bool _isLoading = true;
   List<ThamPh> _visitsAll = [];
   List<ThamPh> _visitsFiltered = [];
@@ -62,7 +68,6 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
         _visitsFiltered = allVisits;
         _isLoading = false;
       });
-
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -76,27 +81,35 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
 
     // Apply status filter
     if (_selectedStatus != null) {
-      filtered = filtered.where((visit) => visit.trangThai == _selectedStatus).toList();
+      filtered =
+          filtered
+              .where((visit) => visit.trangThai == _selectedStatus)
+              .toList();
     }
 
     // Apply date filter
     if (_selectedDate != null) {
-      filtered = filtered.where((visit) {
-        return visit.thoiGianDen.year == _selectedDate!.year &&
-            visit.thoiGianDen.month == _selectedDate!.month &&
-            visit.thoiGianDen.day == _selectedDate!.day;
-      }).toList();
+      filtered =
+          filtered.where((visit) {
+            return visit.thoiGianDen.year == _selectedDate!.year &&
+                visit.thoiGianDen.month == _selectedDate!.month &&
+                visit.thoiGianDen.day == _selectedDate!.day;
+          }).toList();
     }
 
     // Apply search
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
-      filtered = filtered.where((visit) =>
-      visit.hoTenPh.toLowerCase().contains(query) ||
-          visit.hoTenHs.toLowerCase().contains(query) ||
-          visit.soDienThoai.toLowerCase().contains(query) ||
-          visit.soCccd.toLowerCase().contains(query)
-      ).toList();
+      filtered =
+          filtered
+              .where(
+                (visit) =>
+                    visit.hoTenPh.toLowerCase().contains(query) ||
+                    visit.hoTenHs.toLowerCase().contains(query) ||
+                    visit.soDienThoai.toLowerCase().contains(query) ||
+                    visit.soCccd.toLowerCase().contains(query),
+              )
+              .toList();
     }
 
     setState(() {
@@ -139,7 +152,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
     try {
       final updatedVisit = visit.copyWith(
         trangThai: newStatus,
-        thoiGianKetThuc: newStatus == TrangThaiTham.daVe ? DateTime.now() : visit.thoiGianKetThuc,
+        thoiGianKetThuc:
+            newStatus == TrangThaiTham.daVe
+                ? DateTime.now()
+                : visit.thoiGianKetThuc,
       );
 
       await ThamPhService.updateThamPh(visit.id!, updatedVisit);
@@ -150,7 +166,6 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
 
       // Refresh data
       _initData();
-
     } catch (e) {
       _showErrorSnackbar("Lỗi khi cập nhật: $e");
     }
@@ -189,10 +204,21 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
               _buildDetailItem("Số CCCD", visit.soCccd),
               _buildDetailItem("Số điện thoại", visit.soDienThoai),
               _buildDetailItem("Phòng thăm", visit.phongSo),
-              _buildDetailItem("Thời gian đến", "${_dateFormat.format(visit.thoiGianDen)} ${_timeFormat.format(visit.thoiGianDen)}"),
+              _buildDetailItem(
+                "Thời gian đến",
+                "${_dateFormat.format(visit.thoiGianDen)} ${_timeFormat.format(visit.thoiGianDen)}",
+              ),
               if (visit.thoiGianKetThuc != null)
-                _buildDetailItem("Thời gian kết thúc", "${_dateFormat.format(visit.thoiGianKetThuc!)} ${_timeFormat.format(visit.thoiGianKetThuc!)}"),
-              _buildDetailItem("Trạng thái", visit.trangThai == TrangThaiTham.dangTham ? "Đang thăm" : "Đã về"),
+                _buildDetailItem(
+                  "Thời gian kết thúc",
+                  "${_dateFormat.format(visit.thoiGianKetThuc!)} ${_timeFormat.format(visit.thoiGianKetThuc!)}",
+                ),
+              _buildDetailItem(
+                "Trạng thái",
+                visit.trangThai == TrangThaiTham.dangTham
+                    ? "Đang thăm"
+                    : "Đã về",
+              ),
 
               const SizedBox(height: 20),
 
@@ -236,9 +262,7 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
               ),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -248,9 +272,7 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text("Danh sách phụ huynh thăm"),
-        ),
+        appBar: AppBar(title: const Text("Danh sách phụ huynh thăm")),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -276,9 +298,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
 
           // List of visits
           Expanded(
-            child: _visitsFiltered.isEmpty
-                ? _buildEmptyState()
-                : _buildVisitList(),
+            child:
+                _visitsFiltered.isEmpty
+                    ? _buildEmptyState()
+                    : _buildVisitList(),
           ),
         ],
       ),
@@ -299,15 +322,16 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _searchController.clear();
-                  _applyFilters();
-                },
-              )
-                  : null,
+              suffixIcon:
+                  _searchController.text.isNotEmpty
+                      ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _applyFilters();
+                        },
+                      )
+                      : null,
             ),
             onChanged: (value) {
               _applyFilters();
@@ -320,7 +344,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
               Expanded(
                 child: DropdownButtonFormField<TrangThaiTham?>(
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -356,7 +383,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                   onTap: _selectDate,
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.shade400),
                       borderRadius: BorderRadius.circular(8),
@@ -369,7 +399,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                               ? _dateFormat.format(_selectedDate!)
                               : "Chọn ngày",
                           style: TextStyle(
-                            color: _selectedDate != null ? Colors.black : Colors.grey,
+                            color:
+                                _selectedDate != null
+                                    ? Colors.black
+                                    : Colors.grey,
                           ),
                         ),
                         const Icon(Icons.calendar_today, size: 20),
@@ -398,7 +431,11 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
         children: [
           if (_selectedStatus != null)
             Chip(
-              label: Text(_selectedStatus == TrangThaiTham.dangTham ? "Đang thăm" : "Đã về"),
+              label: Text(
+                _selectedStatus == TrangThaiTham.dangTham
+                    ? "Đang thăm"
+                    : "Đã về",
+              ),
               onDeleted: () {
                 setState(() {
                   _selectedStatus = null;
@@ -436,21 +473,19 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.people_outline,
-            size: 80,
-            color: Colors.grey.shade400,
-          ),
+          Icon(Icons.people_outline, size: 80, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
             "Không có phụ huynh thăm",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 8),
           Text(
-            _searchController.text.isNotEmpty || _selectedStatus != null || _selectedDate != null
+            _searchController.text.isNotEmpty ||
+                    _selectedStatus != null ||
+                    _selectedDate != null
                 ? "Thử thay đổi bộ lọc để xem kết quả khác"
                 : "Khi có phụ huynh đến thăm, họ sẽ xuất hiện ở đây",
             style: TextStyle(color: Colors.grey.shade500),
@@ -462,22 +497,25 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
   }
 
   Widget _buildVisitList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-      itemCount: _visitsFiltered.length,
-      itemBuilder: (context, index) {
-        final visit = _visitsFiltered[index];
-        return _buildVisitCard(visit);
-      },
+    return Scrollbar(
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        itemCount: _visitsFiltered.length,
+        itemBuilder: (context, index) {
+          final visit = _visitsFiltered[index];
+          return _buildVisitCard(visit);
+        },
+      ),
     );
   }
 
   Widget _buildVisitCard(ThamPh visit) {
     final bool isOngoing = visit.trangThai == TrangThaiTham.dangTham;
     final Color statusColor = isOngoing ? Colors.green : Colors.grey;
-    final Duration? duration = visit.thoiGianKetThuc != null
-        ? visit.thoiGianKetThuc!.difference(visit.thoiGianDen)
-        : null;
+    final Duration? duration =
+        visit.thoiGianKetThuc != null
+            ? visit.thoiGianKetThuc!.difference(visit.thoiGianDen)
+            : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -524,9 +562,7 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                         const SizedBox(height: 4),
                         Text(
                           "Phụ huynh của ${visit.hoTenHs}",
-                          style: TextStyle(
-                            color: Colors.grey.shade700,
-                          ),
+                          style: TextStyle(color: Colors.grey.shade700),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -540,7 +576,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -597,7 +636,10 @@ class _DanhSachPhuHuynhThamScreenState extends State<DanhSachPhuHuynhThamScreen>
                   ),
                   if (duration != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),

@@ -59,51 +59,59 @@ class _TruongScreenState extends State<TruongScreen> {
                 return Card(
                   clipBehavior: Clip.antiAlias,
 
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Tên Trường')),
-                        DataColumn(label: Text('Địa Chỉ')),
-                        DataColumn(label: Text('Số Điện Thoại')),
-                        DataColumn(label: Text('Mã Trường')),
-                        DataColumn(label: Text('Thao Tác')),
-                      ],
-                      rows:
-                          truongList.map((truong) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(truong.tenTruong)),
-                                DataCell(Text(truong.diaChi)),
-                                DataCell(Text(truong.sdt)),
-                                DataCell(Text(truong.maTruong)),
-                                DataCell(
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Colors.blue,
-                                        ),
-                                        onPressed:
-                                            () => _showTruongFormDialog(
-                                              truong: truong,
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columns: const [
+                              DataColumn(label: Text('Tên Trường')),
+                              DataColumn(label: Text('Địa Chỉ')),
+                              DataColumn(label: Text('Số Điện Thoại')),
+                              DataColumn(label: Text('Mã Trường')),
+                              DataColumn(label: Text('Thao Tác')),
+                            ],
+                            rows:
+                                truongList.map((truong) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(Text(truong.tenTruong)),
+                                      DataCell(Text(truong.diaChi)),
+                                      DataCell(Text(truong.sdt)),
+                                      DataCell(Text(truong.maTruong)),
+                                      DataCell(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                color: Colors.blue,
+                                              ),
+                                              onPressed:
+                                                  () => _showTruongFormDialog(
+                                                    truong: truong,
+                                                  ),
                                             ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed:
+                                                  () => _deleteTruong(truong),
+                                            ),
+                                          ],
                                         ),
-                                        onPressed: () => _deleteTruong(truong),
                                       ),
                                     ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                                  );
+                                }).toList(),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 );
