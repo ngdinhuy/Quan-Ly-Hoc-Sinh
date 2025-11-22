@@ -3,6 +3,7 @@ import '../models/xin_ra_vao.dart';
 import '../models/lop.dart';
 import '../services/xin_ra_vao_service.dart';
 import '../services/lop_service.dart';
+import '../widgets/scrollable_data_table.dart';
 import '../widgets/xin_ra_vao_form_dialog.dart';
 
 class RaVaoScreen extends StatefulWidget {
@@ -90,13 +91,12 @@ class _RaVaoScreenState extends State<RaVaoScreen>
                 DropdownButton<Lop>(
                   value: _lop ?? (_lopList.isNotEmpty ? _lopList.first : null),
                   hint: const Text('Chọn lớp'),
-                  items:
-                      _lopList.map((lop) {
-                        return DropdownMenuItem(
-                          value: lop,
-                          child: Text(lop.tenLop),
-                        );
-                      }).toList(),
+                  items: _lopList.map((lop) {
+                    return DropdownMenuItem(
+                      value: lop,
+                      child: Text(lop.tenLop),
+                    );
+                  }).toList(),
                   onChanged: (lop) {
                     setState(() {
                       _lop = lop;
@@ -108,10 +108,9 @@ class _RaVaoScreenState extends State<RaVaoScreen>
                 ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed:
-                    _lopList.isNotEmpty
-                        ? () => _showXinRaVaoFormDialog()
-                        : null,
+                onPressed: _lopList.isNotEmpty
+                    ? () => _showXinRaVaoFormDialog()
+                    : null,
                 icon: const Icon(Icons.add),
                 label: const Text('Thêm Yêu Cầu'),
               ),
@@ -166,8 +165,7 @@ class _RaVaoScreenState extends State<RaVaoScreen>
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+      child: ScrollableDataTable(
         child: DataTable(
           columns: const [
             DataColumn(label: Text('Học Sinh')),
@@ -177,44 +175,56 @@ class _RaVaoScreenState extends State<RaVaoScreen>
             DataColumn(label: Text('Nguồn')),
             DataColumn(label: Text('Thao Tác')),
           ],
-          rows:
-              filteredList.map((xin) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(xin.hoTenHs)),
-                    DataCell(Text(xin.soTheHocSinh)),
-                    DataCell(Text(xin.lyDo)),
-                    DataCell(Text(_formatDateTime(xin.thoiGianXin))),
-                    DataCell(Text(_getNguonText(xin.nguon))),
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (trangThai == TrangThaiXin.choDuyet) ...[
-                            IconButton(
-                              icon: const Icon(Icons.check, color: Colors.green),
-                              onPressed: () => _duyetXinRaVao(xin, true),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.cancel, color: Colors.red),
-                              onPressed: () => _duyetXinRaVao(xin, false),
-                            ),
-                          ],
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed:
-                                () => _showXinRaVaoFormDialog(xinRaVao: xin),
+          rows: filteredList.map((xin) {
+            return DataRow(
+              cells: [
+                DataCell(Text(xin.hoTenHs)),
+                DataCell(Text(xin.soTheHocSinh)),
+                DataCell(Text(xin.lyDo)),
+                DataCell(Text(_formatDateTime(xin.thoiGianXin))),
+                DataCell(Text(_getNguonText(xin.nguon))),
+                DataCell(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (trangThai == TrangThaiXin.choDuyet) ...[
+                        IconButton(
+                          icon: const Icon(
+                            Icons.check,
+                            color: Colors.green,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteXinRaVao(xin),
+                          onPressed: () => _duyetXinRaVao(xin, true),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.cancel,
+                            color: Colors.red,
                           ),
-                        ],
+                          onPressed: () => _duyetXinRaVao(xin, false),
+                        ),
+                      ],
+                      IconButton(
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                        ),
+                        onPressed: () => _showXinRaVaoFormDialog(
+                          xinRaVao: xin,
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () => _deleteXinRaVao(xin),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
         ),
       ),
     );
@@ -240,14 +250,13 @@ class _RaVaoScreenState extends State<RaVaoScreen>
 
     showDialog(
       context: context,
-      builder:
-          (context) => XinRaVaoFormDialog(
-            lop: _lop ?? _lopList.first,
-            xinRaVao: xinRaVao,
-            onSaved: () {
-              _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
-            },
-          ),
+      builder: (context) => XinRaVaoFormDialog(
+        lop: _lop ?? _lopList.first,
+        xinRaVao: xinRaVao,
+        onSaved: () {
+          _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
+        },
+      ),
     );
   }
 
@@ -281,38 +290,37 @@ class _RaVaoScreenState extends State<RaVaoScreen>
   void _deleteXinRaVao(XinRaVao xinRaVao) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Xác Nhận Xóa'),
-            content: Text('Bạn có chắc chắn muốn xóa yêu cầu này?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  try {
-                    await XinRaVaoService.deleteXinRaVao(xinRaVao.id!);
-                    _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Xóa yêu cầu thành công')),
-                      );
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
-                    }
-                  }
-                },
-                child: const Text('Xóa'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Xác Nhận Xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa yêu cầu này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await XinRaVaoService.deleteXinRaVao(xinRaVao.id!);
+                _loadXinRaVaoByLop(_lop?.id ?? _lopList.first.id!);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Xóa yêu cầu thành công')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                }
+              }
+            },
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
     );
   }
 }

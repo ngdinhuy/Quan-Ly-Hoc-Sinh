@@ -35,7 +35,8 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
       });
 
       // Get all assignments
-      List<PhanCongChuNhiem> assignments = await PhanCongChuNhiemService.getAll();
+      List<PhanCongChuNhiem> assignments =
+          await PhanCongChuNhiemService.getAll();
 
       // Extract unique school years for filtering
       Set<String> schoolYearSet = {};
@@ -44,7 +45,9 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
 
       for (var assignment in assignments) {
         // Get teacher details
-        GiaoVien? teacher = await GiaoVienService.getGiaoVienById(assignment.idGv);
+        GiaoVien? teacher = await GiaoVienService.getGiaoVienById(
+          assignment.idGv,
+        );
 
         // Get class details
         Lop? classInfo = await LopService.getLopById(assignment.idLop);
@@ -83,9 +86,9 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi khi tải dữ liệu: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi khi tải dữ liệu: $e')));
     }
   }
 
@@ -108,149 +111,167 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
               _showFilterDialog();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _assignmentData.isEmpty
-          ? const Center(child: Text('Không có dữ liệu phân công'))
-          : Column(
-        children: [
-          if (_selectedYear != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Chip(
-                label: Text('Năm học: $_selectedYear'),
-                deleteIcon: const Icon(Icons.close),
-                onDeleted: () {
-                  setState(() {
-                    _selectedYear = null;
-                  });
-                  _loadData();
-                },
-              ),
-            ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _assignmentData.length,
-              itemBuilder: (context, index) {
-                final item = _assignmentData[index];
-                final teacher = item['teacher'] as GiaoVien;
-                final classInfo = item['class'] as Lop;
-                final assignment = item['assignment'] as PhanCongChuNhiem;
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _assignmentData.isEmpty
+              ? const Center(child: Text('Không có dữ liệu phân công'))
+              : Column(
+                children: [
+                  if (_selectedYear != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Chip(
+                        label: Text('Năm học: $_selectedYear'),
+                        deleteIcon: const Icon(Icons.close),
+                        onDeleted: () {
+                          setState(() {
+                            _selectedYear = null;
+                          });
+                          _loadData();
+                        },
+                      ),
+                    ),
+                  Expanded(
+                    child: Scrollbar(
+                      child: ListView.builder(
+                        itemCount: _assignmentData.length,
+                        itemBuilder: (context, index) {
+                          final item = _assignmentData[index];
+                          final teacher = item['teacher'] as GiaoVien;
+                          final classInfo = item['class'] as Lop;
+                          final assignment =
+                              item['assignment'] as PhanCongChuNhiem;
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Lớp ${classInfo.tenLop}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 6.0,
+                            ),
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Lớp ${classInfo.tenLop}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).primaryColor.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Phòng: ${classInfo.phongSo}',
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Divider(),
+                                  _buildInfoRow(
+                                    Icons.person,
+                                    'Giáo viên:',
+                                    teacher.hoTen,
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.cake,
+                                    'Ngày sinh:',
+                                    teacher.ngaySinh != null
+                                        ? DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(teacher.ngaySinh!)
+                                        : 'Không có thông tin',
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.phone,
+                                    'Số điện thoại:',
+                                    teacher.soDienThoai,
+                                  ),
+                                  const Divider(),
+                                  _buildInfoRow(
+                                    Icons.calendar_today,
+                                    'Bắt đầu:',
+                                    DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).format(assignment.tuNgay),
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.event_available,
+                                    'Kết thúc:',
+                                    assignment.denNgay != null
+                                        ? DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(assignment.denNgay!)
+                                        : 'Hiện tại',
+                                  ),
+                                  if (assignment.ghiChu != null &&
+                                      assignment.ghiChu!.isNotEmpty)
+                                    _buildInfoRow(
+                                      Icons.note,
+                                      'Ghi chú:',
+                                      assignment.ghiChu!,
+                                    ),
+                                  ButtonBar(
+                                    alignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          _editAssignment(assignment);
+                                        },
+                                        child: const Text('Chỉnh sửa'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          _confirmDelete(assignment);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Xóa'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Phòng: ${classInfo.phongSo}',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        _buildInfoRow(
-                          Icons.person,
-                          'Giáo viên:',
-                          teacher.hoTen,
-                        ),
-                        _buildInfoRow(
-                          Icons.cake,
-                          'Ngày sinh:',
-                          teacher.ngaySinh != null
-                              ? DateFormat('dd/MM/yyyy').format(teacher.ngaySinh!)
-                              : 'Không có thông tin',
-                        ),
-                        _buildInfoRow(
-                          Icons.phone,
-                          'Số điện thoại:',
-                          teacher.soDienThoai,
-                        ),
-                        const Divider(),
-                        _buildInfoRow(
-                          Icons.calendar_today,
-                          'Bắt đầu:',
-                          DateFormat('dd/MM/yyyy').format(assignment.tuNgay),
-                        ),
-                        _buildInfoRow(
-                          Icons.event_available,
-                          'Kết thúc:',
-                          assignment.denNgay != null
-                              ? DateFormat('dd/MM/yyyy').format(assignment.denNgay!)
-                              : 'Hiện tại',
-                        ),
-                        if (assignment.ghiChu != null && assignment.ghiChu!.isNotEmpty)
-                          _buildInfoRow(
-                            Icons.note,
-                            'Ghi chú:',
-                            assignment.ghiChu!,
-                          ),
-                        ButtonBar(
-                          alignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                _editAssignment(assignment);
-                              },
-                              child: const Text('Chỉnh sửa'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                _confirmDelete(assignment);
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                              ),
-                              child: const Text('Xóa'),
-                            ),
-                          ],
-                        ),
-                      ],
+                          );
+                        },
+                      ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+                ],
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(context: context, builder: (context) => const PhanCongFormDialog())
-          .then((_) => _loadData());
+          showDialog(
+            context: context,
+            builder: (context) => const PhanCongFormDialog(),
+          ).then((_) => _loadData());
         },
         child: const Icon(Icons.add),
       ),
@@ -263,11 +284,7 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: Colors.grey[600],
-          ),
+          Icon(icon, size: 16, color: Colors.grey[600]),
           const SizedBox(width: 8),
           SizedBox(
             width: 85,
@@ -280,10 +297,7 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.black87),
-            ),
+            child: Text(value, style: const TextStyle(color: Colors.black87)),
           ),
         ],
       ),
@@ -293,78 +307,88 @@ class _PhanCongChuNhiemScreenState extends State<PhanCongChuNhiemScreen> {
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lọc theo năm học'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                title: const Text('Tất cả'),
-                selected: _selectedYear == null,
-                onTap: () {
-                  Navigator.pop(context);
-                  _applyYearFilter(null);
-                },
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Lọc theo năm học'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    title: const Text('Tất cả'),
+                    selected: _selectedYear == null,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _applyYearFilter(null);
+                    },
+                  ),
+                  ..._schoolYears.map(
+                    (year) => ListTile(
+                      title: Text(year),
+                      selected: _selectedYear == year,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _applyYearFilter(year);
+                      },
+                    ),
+                  ),
+                ],
               ),
-              ..._schoolYears.map((year) => ListTile(
-                title: Text(year),
-                selected: _selectedYear == year,
-                onTap: () {
-                  Navigator.pop(context);
-                  _applyYearFilter(year);
-                },
-              )),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Đóng'),
+              ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
-          ),
-        ],
-      ),
     );
   }
 
   void _editAssignment(PhanCongChuNhiem assignment) {
-    showDialog(context: context, builder: (context) => PhanCongFormDialog(initialAssignment: assignment))
-        .then((_) => _loadData());
+    showDialog(
+      context: context,
+      builder: (context) => PhanCongFormDialog(initialAssignment: assignment),
+    ).then((_) => _loadData());
   }
 
   void _confirmDelete(PhanCongChuNhiem assignment) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa phân công này không?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Xác nhận xóa'),
+            content: const Text(
+              'Bạn có chắc chắn muốn xóa phân công này không?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Hủy'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  try {
+                    await PhanCongChuNhiemService.delete(assignment.id!);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Đã xóa phân công thành công'),
+                      ),
+                    );
+                    _loadData();
+                  } catch (e) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Lỗi khi xóa: $e')));
+                  }
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Xóa'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await PhanCongChuNhiemService.delete(assignment.id!);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã xóa phân công thành công')),
-                );
-                _loadData();
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Lỗi khi xóa: $e')),
-                );
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
     );
   }
 }
