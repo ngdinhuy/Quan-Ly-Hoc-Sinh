@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quan_ly_hoc_sinh/screens/phan_cong_chu_nhiem_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phan_cong_truc_ban_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/thong_ke_xuat_an_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/ve_phep_admin_screen.dart';
 import '../models/user.dart' as app_user;
 import '../services/user_service.dart';
 import 'truong_screen.dart';
@@ -33,8 +35,13 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('ra_vao')) screens.add(const RaVaoScreen());
     if (_canAccess('phu_huynh')) screens.add(const PhuHuynhScreen());
     if (_canAccess('bao_cao')) screens.add(const BaoCaoScreen());
-    if (_canAccess('phan_cong_chu_nhiem')) screens.add(const PhanCongChuNhiemScreen());
-    if (_canAccess('phan_cong_truc_ban')) screens.add(const PhanCongTrucBanScreen());
+    if (_canAccess('phan_cong_chu_nhiem'))
+      screens.add(const PhanCongChuNhiemScreen());
+    if (_canAccess('phan_cong_truc_ban'))
+      screens.add(const PhanCongTrucBanScreen());
+    if (_canAccess('xin_ve_phep')) screens.add(const VePhepAdminScreen());
+    if (_canAccess('thong_ke_xuat_an'))
+      screens.add(const ThongKeXuatAnScreen());
     if (_canAccess('admin')) screens.add(const AdminManagementScreen());
     return screens;
   }
@@ -50,6 +57,8 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('bao_cao')) titles.add('Báo Cáo');
     if (_canAccess('phan_cong_chu_nhiem')) titles.add('Phân Công Chủ Nhiệm');
     if (_canAccess('phan_cong_truc_ban')) titles.add('Phân Công Trực Ban');
+    if (_canAccess('xin_ve_phep')) titles.add('Xin về phép');
+    if (_canAccess('thong_ke_xuat_an')) titles.add('Thống Kê Xuất Ăn');
     if (_canAccess('admin')) titles.add('Quản lý Admin');
     return titles;
   }
@@ -67,6 +76,7 @@ class _MainScreenState extends State<MainScreen> {
           'ra_vao',
           'phu_huynh',
           'bao_cao',
+          'xin_ve_phep',
         ].contains(feature);
       case app_user.UserRole.hocsinh:
         return ['ra_vao'].contains(feature);
@@ -132,6 +142,16 @@ class _MainScreenState extends State<MainScreen> {
         _buildMenuItem(index++, Icons.schedule, 'Phân Công Trực Ban'),
       );
     }
+    if (_canAccess('xin_ve_phep')) {
+      menuItems.add(
+        _buildMenuItem(index++, Icons.event_available, 'Xin về phép'),
+      );
+    }
+    if (_canAccess('thong_ke_xuat_an')) {
+      menuItems.add(
+        _buildMenuItem(index++, Icons.restaurant_menu, 'Thống Kê Xuất Ăn'),
+      );
+    }
     if (_canAccess('admin')) {
       menuItems.add(
         _buildMenuItem(index++, Icons.admin_panel_settings, 'Quản lý Admin'),
@@ -154,37 +174,34 @@ class _MainScreenState extends State<MainScreen> {
                 _signOut();
               }
             },
-            itemBuilder:
-                (BuildContext context) => [
-                  PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Row(
-                      children: const [
-                        Icon(Icons.logout),
-                        SizedBox(width: 8),
-                        Text('Đăng xuất'),
-                      ],
-                    ),
-                  ),
-                ],
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: const [
+                    Icon(Icons.logout),
+                    SizedBox(width: 8),
+                    Text('Đăng xuất'),
+                  ],
+                ),
+              ),
+            ],
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircleAvatar(
-                    backgroundImage:
-                        widget.user.photoUrl != null
-                            ? NetworkImage(widget.user.photoUrl!)
-                            : null,
-                    child:
-                        widget.user.photoUrl == null
-                            ? Text(
-                              widget.user.displayName.isNotEmpty
-                                  ? widget.user.displayName[0].toUpperCase()
-                                  : 'U',
-                            )
-                            : null,
+                    backgroundImage: widget.user.photoUrl != null
+                        ? NetworkImage(widget.user.photoUrl!)
+                        : null,
+                    child: widget.user.photoUrl == null
+                        ? Text(
+                            widget.user.displayName.isNotEmpty
+                                ? widget.user.displayName[0].toUpperCase()
+                                : 'U',
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 8),
                   Column(

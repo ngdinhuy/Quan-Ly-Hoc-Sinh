@@ -3,6 +3,8 @@ import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/dang_ky_ra_ngoai/dang_ky_ra_ng
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/lich_su_ra_vao/lich_su_ra_vao_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_khuon_mat/xac_thuc_khuon_mat_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_the/xac_thuc_the_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/dang_ky_ve_phep_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/lich_su_ve_phep_screen.dart';
 import '../../../models/hoc_sinh.dart';
 
 class MainHocSinhScreen extends StatefulWidget {
@@ -66,8 +68,16 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
             ),
             const SizedBox(height: 16),
             _infoRow(Icons.person, "Họ tên", widget.hocSinh.hoTen),
-            _infoRow(Icons.cake, "Ngày sinh", _formatDate(widget.hocSinh.ngaySinh)),
-            _infoRow(Icons.credit_card, "Số thẻ học sinh", widget.hocSinh.soTheHocSinh),
+            _infoRow(
+              Icons.cake,
+              "Ngày sinh",
+              _formatDate(widget.hocSinh.ngaySinh),
+            ),
+            _infoRow(
+              Icons.credit_card,
+              "Số thẻ học sinh",
+              widget.hocSinh.soTheHocSinh,
+            ),
             _infoRow(Icons.class_, "Lớp", widget.hocSinh.phongSo),
           ],
         ),
@@ -84,17 +94,9 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
           const SizedBox(width: 8),
           Text(
             "$label: ",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
         ],
       ),
     );
@@ -110,7 +112,12 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
             "Đăng ký ra ngoài",
             Icons.exit_to_app,
             Colors.blue,
-                () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DangKyRaNgoaiScreen())),
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DangKyRaNgoaiScreen(),
+              ),
+            ),
           ),
           // const SizedBox(height: 16),
           // _actionButton(
@@ -126,8 +133,13 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
             "Lịch sử ra vào",
             Icons.history,
             Colors.blue.shade500,
-                () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const LichSuRaVaoScreen()));
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LichSuRaVaoScreen(),
+                ),
+              );
               // Navigate to history screen
             },
           ),
@@ -136,8 +148,37 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
             "Cập nhật khuôn mặt",
             Icons.face,
             Colors.blue.shade700,
-                () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const XacThucKhuonMatScreen(isUploadFace: true,)));
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const XacThucKhuonMatScreen(isUploadFace: true),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          _actionButton("Xin Về Phép", Icons.time_to_leave, Colors.orange, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DangKyVePhepScreen(),
+              ),
+            );
+          }),
+          const SizedBox(height: 16),
+          _actionButton(
+            "Lịch Sử Về Phép",
+            Icons.event_note,
+            Colors.orange.shade700,
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LichSuVePhepScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -145,7 +186,12 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
     );
   }
 
-  Widget _actionButton(String label, IconData icon, Color color, VoidCallback onPressed) {
+  Widget _actionButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
     return ElevatedButton.icon(
       icon: Icon(icon, color: Colors.white),
       label: Text(

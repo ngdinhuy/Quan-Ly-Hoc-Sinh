@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/quan_ly_lop_chu_nhiem/quan_ly_ra_vao_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/truc_ban/truc_ban_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/duyet_ve_phep/duyet_ve_phep_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/giao_vien.dart';
 import '../../../services/giao_vien_service.dart';
@@ -50,17 +51,13 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_giaoVien == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Thông tin giáo viên')),
-        body: const Center(
-          child: Text('Không tìm thấy thông tin giáo viên'),
-        ),
+        body: const Center(child: Text('Không tìm thấy thông tin giáo viên')),
       );
     }
 
@@ -112,30 +109,24 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             const SizedBox(height: 16),
             Text(
               _giaoVien!.hoTen,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               _giaoVien!.chucVu ?? 'Giáo viên',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const Divider(height: 24),
             _buildInfoRow(Icons.phone, 'Số điện thoại', _giaoVien!.soDienThoai),
             _buildInfoRow(
               Icons.email,
               'Email',
-              _giaoVien!.email ?? 'Chưa cập nhật'
+              _giaoVien!.email ?? 'Chưa cập nhật',
             ),
             _buildInfoRow(
               Icons.badge,
               'CMND/CCCD',
-              _giaoVien!.cmndCccd ?? 'Chưa cập nhật'
+              _giaoVien!.cmndCccd ?? 'Chưa cập nhật',
             ),
             _buildInfoRow(
               Icons.calendar_today,
@@ -163,16 +154,10 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(fontSize: 16),
-                ),
+                Text(value, style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
@@ -189,10 +174,7 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
         children: [
           const Text(
             'Tính năng',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           _buildFeatureButton(
@@ -200,7 +182,12 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             icon: Icons.bar_chart,
             color: Colors.orange,
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => QuanLyLopChuNhiemScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QuanLyLopChuNhiemScreen(),
+                ),
+              );
             },
           ),
           const SizedBox(height: 12),
@@ -209,7 +196,13 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             icon: Icons.people,
             color: Colors.purple,
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => QuanLyLopChuNhiemScreen(isQuanLyRaVao: false)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      QuanLyLopChuNhiemScreen(isQuanLyRaVao: false),
+                ),
+              );
             },
           ),
           const SizedBox(height: 12),
@@ -219,13 +212,32 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
             color: Colors.purple,
             onPressed: () {
               if (_giaoVien == null) return;
-              Navigator.push(context, MaterialPageRoute(builder: (context) => TrucBanScreen(
-                idGiaoVien: _giaoVien!.id!,
-                tenGiaoVien: _giaoVien!.hoTen,
-              )));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TrucBanScreen(
+                    idGiaoVien: _giaoVien!.id!,
+                    tenGiaoVien: _giaoVien!.hoTen,
+                  ),
+                ),
+              );
             },
           ),
-          SizedBox(height: 20)
+          const SizedBox(height: 12),
+          _buildFeatureButton(
+            title: 'Duyệt Về Phép',
+            icon: Icons.event_available,
+            color: Colors.green,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DuyetVePhepScreen(),
+                ),
+              );
+            },
+          ),
+          SizedBox(height: 20),
         ],
       ),
     );

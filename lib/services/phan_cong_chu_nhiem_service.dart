@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quan_ly_hoc_sinh/models/giao_vien.dart';
 import 'package:quan_ly_hoc_sinh/models/phan_cong_chu_nhiem.dart';
 
 class PhanCongChuNhiemService {
-  final CollectionReference phanCongCollection =
-  FirebaseFirestore.instance.collection('phan_cong_chu_nhiem');
+  final CollectionReference phanCongCollection = FirebaseFirestore.instance
+      .collection('phan_cong_chu_nhiem');
 
   // Create a new assignment
   static Future<PhanCongChuNhiem> create(PhanCongChuNhiem phanCong) async {
@@ -80,7 +81,45 @@ class PhanCongChuNhiemService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getClassesByTeacherId(String idGiaoVien) async {
+  /// Get homeroom teacher info by class ID
+  /// Returns a map with teacher info: {idGiaoVien, tenGiaoVien} or null if not found
+  static Future<GiaoVien?> getTeacherByClassId(String idLop) async {
+    try {
+      // Get active homeroom assignment for this class
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('phan_cong_chu_nhiem')
+          .where('id_lop', isEqualTo: idLop)
+          .orderBy('created_at', descending: true)
+          .get();
+
+      if (snapshot.docs.isEmpty) return null;
+
+      // Find active assignment (no end date or end date is in the future)
+      for (var doc in snapshot.docs) {
+        final assignment = PhanCongChuNhiem.fromFirestore(doc);
+        if (assignment.denNgay == null ||
+            assignment.denNgay!.isAfter(DateTime.now())) {
+          // Get teacher info
+          DocumentSnapshot teacherDoc = await FirebaseFirestore.instance
+              .collection('giao_vien')
+              .doc(assignment.idGv)
+              .get();
+
+          if (teacherDoc.exists) {
+            final teacherData = teacherDoc.data() as Map<String, dynamic>;
+            return GiaoVien.fromFirestore(teacherDoc);
+          }
+        }
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to get teacher by class: $e');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getClassesByTeacherId(
+    String idGiaoVien,
+  ) async {
     try {
       // Get all homeroom assignments for this teacher
       QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -94,9 +133,13 @@ class PhanCongChuNhiemService {
           .toList();
 
       // Filter active assignments (no end date or end date is in the future)
-      assignments = assignments.where((assignment) =>
-      assignment.denNgay == null || assignment.denNgay!.isAfter(DateTime.now())
-      ).toList();
+      assignments = assignments
+          .where(
+            (assignment) =>
+                assignment.denNgay == null ||
+                assignment.denNgay!.isAfter(DateTime.now()),
+          )
+          .toList();
 
       // For each assignment, get the class information
       List<Map<String, dynamic>> classesWithInfo = [];
@@ -108,7 +151,8 @@ class PhanCongChuNhiemService {
             .get();
 
         if (classDoc.exists) {
-          Map<String, dynamic> classData = classDoc.data() as Map<String, dynamic>;
+          Map<String, dynamic> classData =
+              classDoc.data() as Map<String, dynamic>;
           classData['id'] = classDoc.id;
 
           classesWithInfo.add({
@@ -124,5 +168,4 @@ class PhanCongChuNhiemService {
       throw Exception('Failed to fetch teacher classes: $e');
     }
   }
-
 }

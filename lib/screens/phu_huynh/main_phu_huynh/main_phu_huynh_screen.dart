@@ -6,6 +6,8 @@ import 'package:quan_ly_hoc_sinh/screens/phu_huynh/dang_ky_tham_con/dang_ky_tham
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/danh_sach_tham_con/danh_sach_tham_con_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai/hoc_sinh_ra_ngoai_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai_screen/hoc_sinh_ra_ngoai_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/xin_ve_phep/dang_ky_ve_phep_phu_huynh_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/xin_ve_phep/lich_su_ve_phep_phu_huynh_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/phu_huynh.dart';
 import '../../../models/hoc_sinh.dart';
@@ -186,7 +188,11 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             ),
             const Divider(height: 32),
             _buildInfoRow(Icons.credit_card, "CCCD:", _phuHuynh!.soCccd),
-            _buildInfoRow(Icons.phone, "Số điện thoại:", _phuHuynh!.soDienThoai),
+            _buildInfoRow(
+              Icons.phone,
+              "Số điện thoại:",
+              _phuHuynh!.soDienThoai,
+            ),
             _buildInfoRow(Icons.email, "Email:", _phuHuynh!.gmail),
           ],
         ),
@@ -246,7 +252,11 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             const Divider(height: 32),
             _buildInfoRow(Icons.badge, "Mã số học sinh:", _hocSinh!.id ?? ""),
             _buildInfoRow(Icons.credit_card, "Số thẻ:", _hocSinh!.soTheHocSinh),
-            _buildInfoRow(Icons.cake, "Ngày sinh:", _formatDate(_hocSinh!.ngaySinh)),
+            _buildInfoRow(
+              Icons.cake,
+              "Ngày sinh:",
+              _formatDate(_hocSinh!.ngaySinh),
+            ),
             _buildInfoRow(Icons.location_on, "Phòng:", _hocSinh!.phongSo),
             _buildStudentStatusChip(),
           ],
@@ -287,10 +297,7 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             ),
             child: Text(
               statusText,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: color, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -302,10 +309,7 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Tác vụ",
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text("Tác vụ", style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         _buildActionCard(
           title: "Lịch sử thăm con",
@@ -334,7 +338,27 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
             _navigateToHistoryRaVao();
           },
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          title: "Xin Về Phép Cho Con",
+          description: "Đăng ký xin về phép cho con",
+          icon: Icons.time_to_leave,
+          color: Colors.orange,
+          onTap: () {
+            _navigateToLeaveRequest();
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          title: "Lịch Sử Về Phép",
+          description: "Xem lịch sử về phép của con",
+          icon: Icons.event_note,
+          color: Colors.deepOrange,
+          onTap: () {
+            _navigateToLeaveHistory();
+          },
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -377,9 +401,7 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                      ),
+                      style: TextStyle(color: Colors.grey.shade700),
                     ),
                   ],
                 ),
@@ -457,11 +479,33 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
     if (_hocSinh != null && loacalDateService.getId() != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HocSinhRaNgoaiScreen(idHocSinh: _hocSinh!.id!, tenHocSinh: _hocSinh!.hoTen)),
+        MaterialPageRoute(
+          builder: (context) => HocSinhRaNgoaiScreen(
+            idHocSinh: _hocSinh!.id!,
+            tenHocSinh: _hocSinh!.hoTen,
+          ),
+        ),
       );
     }
   }
 
+  void _navigateToLeaveRequest() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const DangKyVePhepPhuHuynhScreen(),
+      ),
+    );
+  }
+
+  void _navigateToLeaveHistory() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LichSuVePhepPhuHuynhScreen(),
+      ),
+    );
+  }
 
   String _formatDate(DateTime date) {
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
@@ -472,9 +516,9 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
       await FirebaseAuth.instance.signOut();
       // Navigate to login screen or handle in auth state changes
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi đăng xuất: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi đăng xuất: $e")));
     }
   }
 }

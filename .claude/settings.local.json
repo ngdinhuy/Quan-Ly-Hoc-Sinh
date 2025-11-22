@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dart format:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(openspec show:*)",
+      "Bash(openspec validate:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
