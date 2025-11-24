@@ -38,13 +38,13 @@ class _DuyetVePhepScreenState extends State<DuyetVePhepScreen> {
     }
 
     try {
-      // Check if duty teacher
+      // Kiểm tra xem phải giáo viên trực ban k?
       final dutyAssignments = await PhanCongTrucBanService.getByTeacherId(
         teacherId,
       );
       final isDuty = dutyAssignments.isNotEmpty;
 
-      // Check if homeroom teacher
+      // Kiểm tra xem phải giáo viên chủ nhiệm hay k?
       final homeroomClasses =
           await PhanCongChuNhiemService.getClassesByTeacherId(teacherId);
       final homeroomClassId = homeroomClasses.isNotEmpty
@@ -116,26 +116,26 @@ class _DuyetVePhepScreenState extends State<DuyetVePhepScreen> {
           ],
         ),
         backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline),
-            tooltip: 'Tạo mới',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => GiaoVienNhapVePhepFormDialog(
-                  teacherId: _localDataService.getId()!,
-                  teacherName: _teacherName ?? 'Giáo viên',
-                ),
-              ).then((result) {
-                if (result == true) {
-                  // Refresh list if request was created
-                  setState(() {});
-                }
-              });
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.add_circle_outline),
+        //     tooltip: 'Tạo mới',
+        //     onPressed: () {
+        //       showDialog(
+        //         context: context,
+        //         builder: (context) => GiaoVienNhapVePhepFormDialog(
+        //           teacherId: _localDataService.getId()!,
+        //           teacherName: _teacherName ?? 'Giáo viên',
+        //         ),
+        //       ).then((result) {
+        //         if (result == true) {
+        //           // Refresh list if request was created
+        //           setState(() {});
+        //         }
+        //       });
+        //     },
+        //   ),
+        // ],
       ),
       body: StreamBuilder<List<XinVePhep>>(
         stream: _isDutyTeacher

@@ -287,6 +287,56 @@ Admin feature for tracking daily meal counts by class, based on approved leave p
 - `excel` package for Excel export
 - `web` package for browser download
 
+### Student Attendance Tracking (Điểm Danh)
+
+System for tracking student attendance check-ins with configurable time periods per class and per weekday.
+
+**Key features:**
+- **Configurable time periods**: Admins can configure attendance periods (morning/noon/afternoon-evening) per class per weekday via web interface
+- **Student check-in**: Students check in via face scan on mobile app
+- **Late calculation**: Automatic late status based on check-in time vs. configured period end time
+- **Absence tracking**: Students who don't check in and have no approved leave are counted as absent (calculated on-demand, not stored)
+- **Leave integration**: Students with approved leave permissions are excluded from absence counts
+- **Late/Absence history**: Teachers can view late history for their homeroom class; Parents can view their child's late and absence history
+- **Admin statistics**: View combined attendance statistics (late + absent) by class and date on web admin
+
+**Attendance periods (3 per day):**
+- `sang` (Morning): Default 07:00-07:30
+- `trua` (Noon): Default 13:00-13:30
+- `chieuToi` (Afternoon/Evening): Default 19:00-19:30
+
+**Attendance status (`TrangThaiDiemDanh`):**
+- `dungGio`: On time (check-in ≤ period end time)
+- `tre`: Late (check-in > period end time)
+- `vangPhep`: Excused absence (student has approved leave)
+
+**Check-in methods (`PhuongThucDiemDanh`):**
+- `the`: Card scan
+- `khuonMat`: Face scan
+
+**Data model:**
+- Attendance config is embedded in `Lop` model as `cauHinhDiemDanh` (Map<String, CaHocConfig>)
+- Key = day of week ("1"-"7" for Monday-Sunday)
+- Each `CaHocConfig` contains 3 `ThoiGianCa` (start/end times for each period)
+
+**Absence calculation logic:**
+- Absence = All students in class - Checked-in students - Students on approved leave
+- Absences only calculated for ended periods (current time > period end + 30 min buffer)
+- Calculated on-demand, not stored in database
+
+**Related files:**
+- Model: `lib/models/diem_danh.dart`
+- Service: `lib/services/diem_danh_service.dart`
+- Admin config screen: `lib/screens/cau_hinh_diem_danh_screen.dart` (web only)
+- Admin statistics: `lib/screens/thong_ke_di_muon_screen.dart` (web only, shows late + absent)
+- Student check-in: `lib/screens/hoc_sinh/diem_danh/diem_danh_screen.dart`
+- Teacher late history: `lib/screens/giao_vien/lich_su_di_muon/lich_su_di_muon_screen.dart`
+- Parent late history: `lib/screens/phu_huynh/lich_su_di_muon/lich_su_di_muon_phu_huynh_screen.dart`
+- Parent absence history: `lib/screens/phu_huynh/lich_su_vang_mat/lich_su_vang_mat_screen.dart`
+- Camera widgets: `lib/widgets/face_camera_widget.dart`, `lib/widgets/card_camera_widget.dart`
+
+**Firebase collection:** `diem_danh`
+
 ## Key Development Patterns
 
 ### Adding a New Screen

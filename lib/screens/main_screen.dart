@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quan_ly_hoc_sinh/screens/cau_hinh_diem_danh_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phan_cong_chu_nhiem_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phan_cong_truc_ban_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/thong_ke_di_muon_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/thong_ke_xuat_an_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/ve_phep_admin_screen.dart';
 import '../models/user.dart' as app_user;
@@ -42,6 +44,10 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('xin_ve_phep')) screens.add(const VePhepAdminScreen());
     if (_canAccess('thong_ke_xuat_an'))
       screens.add(const ThongKeXuatAnScreen());
+    if (_canAccess('cau_hinh_diem_danh'))
+      screens.add(const CauHinhDiemDanhScreen());
+    if (_canAccess('thong_ke_di_muon'))
+      screens.add(const ThongKeDiMuonScreen());
     if (_canAccess('admin')) screens.add(const AdminManagementScreen());
     return screens;
   }
@@ -59,6 +65,8 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('phan_cong_truc_ban')) titles.add('Phân Công Trực Ban');
     if (_canAccess('xin_ve_phep')) titles.add('Xin về phép');
     if (_canAccess('thong_ke_xuat_an')) titles.add('Thống Kê Xuất Ăn');
+    if (_canAccess('cau_hinh_diem_danh')) titles.add('Cấu Hình Điểm Danh');
+    if (_canAccess('thong_ke_di_muon')) titles.add('Thống Kê Điểm Danh');
     if (_canAccess('admin')) titles.add('Quản lý Admin');
     return titles;
   }
@@ -150,6 +158,16 @@ class _MainScreenState extends State<MainScreen> {
     if (_canAccess('thong_ke_xuat_an')) {
       menuItems.add(
         _buildMenuItem(index++, Icons.restaurant_menu, 'Thống Kê Xuất Ăn'),
+      );
+    }
+    if (_canAccess('cau_hinh_diem_danh')) {
+      menuItems.add(
+        _buildMenuItem(index++, Icons.schedule, 'Cấu Hình Điểm Danh'),
+      );
+    }
+    if (_canAccess('thong_ke_di_muon')) {
+      menuItems.add(
+        _buildMenuItem(index++, Icons.warning_amber, 'Thống Kê Điểm Danh'),
       );
     }
     if (_canAccess('admin')) {

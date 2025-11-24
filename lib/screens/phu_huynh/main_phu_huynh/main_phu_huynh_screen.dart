@@ -8,6 +8,8 @@ import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai/hoc_sinh_ra
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/hoc_sinh_ra_ngoai_screen/hoc_sinh_ra_ngoai_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/xin_ve_phep/dang_ky_ve_phep_phu_huynh_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/phu_huynh/xin_ve_phep/lich_su_ve_phep_phu_huynh_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/lich_su_di_muon/lich_su_di_muon_phu_huynh_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/phu_huynh/lich_su_vang_mat/lich_su_vang_mat_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/phu_huynh.dart';
 import '../../../models/hoc_sinh.dart';
@@ -356,6 +358,36 @@ class _MainPhuHuynhScreenState extends State<MainPhuHuynhScreen> {
           color: Colors.deepOrange,
           onTap: () {
             _navigateToLeaveHistory();
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          title: "Lịch Sử Đi Muộn",
+          description: "Xem lịch sử đi muộn của con",
+          icon: Icons.schedule,
+          color: Colors.amber,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LichSuDiMuonPhuHuynhScreen(),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          title: "Lịch Sử Vắng Mặt",
+          description: "Xem lịch sử vắng mặt của con",
+          icon: Icons.event_busy,
+          color: Colors.red,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LichSuVangMatScreen(),
+              ),
+            );
           },
         ),
         const SizedBox(height: 16),

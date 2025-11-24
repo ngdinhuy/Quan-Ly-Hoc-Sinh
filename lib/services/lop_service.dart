@@ -1,6 +1,8 @@
 import '../models/lop.dart';
 import 'firebase_service.dart';
 
+// CaHocConfig is defined in lop.dart
+
 class LopService {
   static const String collection = 'lop';
 
@@ -86,5 +88,33 @@ class LopService {
             .get();
 
     return querySnapshot.docs.map((doc) => Lop.fromFirestore(doc)).toList();
+  }
+
+  /// Update attendance config for a class
+  static Future<void> updateAttendanceConfig(
+    String idLop,
+    Map<String, CaHocConfig> config,
+  ) async {
+    final configData = config.map(
+      (key, value) => MapEntry(key, value.toMap()),
+    );
+
+    await FirebaseService.firestore.collection(collection).doc(idLop).update({
+      'cau_hinh_diem_danh': configData,
+    });
+  }
+
+  /// Get default attendance config for all 7 days
+  static Map<String, CaHocConfig> getDefaultAttendanceConfig() {
+    final defaultConfig = CaHocConfig.defaultConfig();
+    return {
+      '1': defaultConfig, // Monday
+      '2': defaultConfig, // Tuesday
+      '3': defaultConfig, // Wednesday
+      '4': defaultConfig, // Thursday
+      '5': defaultConfig, // Friday
+      '6': defaultConfig, // Saturday
+      '7': defaultConfig, // Sunday
+    };
   }
 }

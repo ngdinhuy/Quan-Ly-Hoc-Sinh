@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/quan_ly_lop_chu_nhiem/quan_ly_ra_vao_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/truc_ban/truc_ban_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/giao_vien/duyet_ve_phep/duyet_ve_phep_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/giao_vien/lich_su_di_muon/lich_su_di_muon_screen.dart';
 import 'package:quan_ly_hoc_sinh/services/local_data_service.dart';
 import '../../../models/giao_vien.dart';
 import '../../../services/giao_vien_service.dart';
@@ -237,7 +237,21 @@ class _MainGiaoVienScreenState extends State<MainGiaoVienScreen> {
               );
             },
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 12),
+          _buildFeatureButton(
+            title: 'Lịch sử đi muộn',
+            icon: Icons.schedule,
+            color: Colors.orange,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LichSuDiMuonScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

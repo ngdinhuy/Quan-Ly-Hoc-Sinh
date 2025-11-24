@@ -211,6 +211,37 @@ class XinVePhepService {
         .toList();
   }
 
+  /// Get approved leave permissions for a specific student within date range
+  static Future<List<XinVePhep>> getApprovedByStudentDateRange(
+    String idHocSinh,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('id_hoc_sinh', isEqualTo: idHocSinh)
+        .where('trang_thai', isEqualTo: 'da_duyet')
+        .get();
+
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+
+    // Filter: any meal deduction date falls within the range
+    return querySnapshot.docs
+        .map((doc) => XinVePhep.fromFirestore(doc))
+        .where(
+          (xinVePhep) => xinVePhep.danhSachNgayCatCom.any((mealDate) {
+            final mealDateOnly = DateTime(
+              mealDate.year,
+              mealDate.month,
+              mealDate.day,
+            );
+            return !mealDateOnly.isBefore(start) && !mealDateOnly.isAfter(end);
+          }),
+        )
+        .toList();
+  }
+
   /// Get all approved leave permissions for a date range (for monthly statistics)
   static Future<List<XinVePhep>> getApprovedInDateRange(
     DateTime startDate,

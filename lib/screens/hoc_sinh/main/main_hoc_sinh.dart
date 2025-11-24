@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/dang_ky_ra_ngoai/dang_ky_ra_ngoai_screen.dart';
+import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/diem_danh/diem_danh_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/lich_su_ra_vao/lich_su_ra_vao_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_khuon_mat/xac_thuc_khuon_mat_screen.dart';
-import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_the/xac_thuc_the_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/dang_ky_ve_phep_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/lich_su_ve_phep_screen.dart';
 import '../../../models/hoc_sinh.dart';
@@ -108,6 +108,18 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _actionButton(
+            "Điểm Danh",
+            Icons.check_circle,
+            Colors.green,
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DiemDanhScreen(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _actionButton(
             "Đăng ký ra ngoài",
             Icons.exit_to_app,

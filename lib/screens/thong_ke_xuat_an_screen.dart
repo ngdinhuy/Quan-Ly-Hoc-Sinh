@@ -1,9 +1,8 @@
-import 'dart:js_interop';
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:web/web.dart' as web;
+
+import '../utils/download_helper.dart' as download_helper;
 
 import '../models/lop.dart';
 import '../services/lop_service.dart';
@@ -241,14 +240,13 @@ class _ThongKeXuatAnScreenState extends State<ThongKeXuatAnScreen>
   }
 
   void _downloadFile(List<int> bytes, String fileName) {
-    final uint8List = Uint8List.fromList(bytes);
-    final blob = web.Blob([uint8List.toJS].toJS);
-    final url = web.URL.createObjectURL(blob);
-    final anchor = web.HTMLAnchorElement()
-      ..href = url
-      ..download = fileName;
-    anchor.click();
-    web.URL.revokeObjectURL(url);
+    if (!kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tính năng này chỉ hỗ trợ trên web')),
+      );
+      return;
+    }
+    download_helper.downloadFile(bytes, fileName);
   }
 
   void _navigateToDailyView(DateTime date) {

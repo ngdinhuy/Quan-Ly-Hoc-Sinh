@@ -15,22 +15,6 @@ class LocalDataService {
     prefs = await SharedPreferences.getInstance();
   }
 
-  Future<void> saveIdHocSinh(String idHocSinh) async {
-    await prefs.setString('id_hoc_sinh', idHocSinh);
-  }
-
-  String? getIdHocSinh() {
-    return prefs.getString('id_hoc_sinh');
-  }
-
-  Future<void> saveIdGiaoVien(String idGiaoVien) async {
-    await prefs.setString('id_giao_vien', idGiaoVien);
-  }
-
-  String? getIdGiaoVien() {
-    return prefs.getString('id_giao_vien');
-  }
-
   Future<void> saveId(String id) async {
     await prefs.setString('id', id);
   }
