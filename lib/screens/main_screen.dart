@@ -253,7 +253,7 @@ class _MainScreenState extends State<MainScreen> {
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: const Text(
-                    'QUẢN LÝ HỌC SINH TRƯỜNG DÂN TỘC NỘI TRÚ',
+                    'QUẢN LÝ HỌC SINH RA VÀO KÝ TÚC XÁ TRƯỜNG DÂN TỘC NỘI TRÚ',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
