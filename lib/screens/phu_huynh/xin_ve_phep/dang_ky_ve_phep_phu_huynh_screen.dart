@@ -490,9 +490,6 @@ class _DangKyVePhepPhuHuynhScreenState
                 if (value == null || value.trim().isEmpty) {
                   return 'Vui lòng nhập số CCCD';
                 }
-                if (!isValidCCCD(value.trim())) {
-                  return 'CCCD phải có đúng 12 chữ số';
-                }
                 return null;
               },
             ),
