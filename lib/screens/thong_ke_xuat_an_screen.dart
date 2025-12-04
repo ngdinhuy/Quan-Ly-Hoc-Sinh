@@ -347,7 +347,7 @@ class _ThongKeXuatAnScreenState extends State<ThongKeXuatAnScreen>
               // Class filter
               Expanded(
                 child: DropdownButtonFormField<Lop?>(
-                  initialValue: _selectedLop,
+                  value: _selectedLop,
                   decoration: InputDecoration(
                     labelText: 'Lọc theo lớp',
                     border: OutlineInputBorder(
@@ -385,13 +385,13 @@ class _ThongKeXuatAnScreenState extends State<ThongKeXuatAnScreen>
           child: _isDailyLoading
               ? const Center(child: CircularProgressIndicator())
               : _dailyStatistics.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Không có dữ liệu',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                )
-              : _buildDailyTable(),
+                  ? const Center(
+                      child: Text(
+                        'Không có dữ liệu',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    )
+                  : _buildDailyTable(),
         ),
       ],
     );
@@ -431,9 +431,8 @@ class _ThongKeXuatAnScreenState extends State<ThongKeXuatAnScreen>
                         stat.soCatCom.toString(),
                         style: TextStyle(
                           color: stat.soCatCom > 0 ? Colors.red : null,
-                          fontWeight: stat.soCatCom > 0
-                              ? FontWeight.bold
-                              : null,
+                          fontWeight:
+                              stat.soCatCom > 0 ? FontWeight.bold : null,
                         ),
                       ),
                     ),

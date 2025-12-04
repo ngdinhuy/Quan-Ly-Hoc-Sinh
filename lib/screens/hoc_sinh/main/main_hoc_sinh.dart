@@ -6,6 +6,8 @@ import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xac_thuc_khuon_mat/xac_thuc_kh
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/dang_ky_ve_phep_screen.dart';
 import 'package:quan_ly_hoc_sinh/screens/hoc_sinh/xin_ve_phep/lich_su_ve_phep_screen.dart';
 import '../../../models/hoc_sinh.dart';
+import '../../../models/lop.dart';
+import '../../../services/lop_service.dart';
 
 class MainHocSinhScreen extends StatefulWidget {
   final HocSinh hocSinh;
@@ -17,6 +19,25 @@ class MainHocSinhScreen extends StatefulWidget {
 }
 
 class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
+  Lop? _lop;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClassInfo();
+  }
+
+  Future<void> _loadClassInfo() async {
+    if (widget.hocSinh.idLop.isNotEmpty) {
+      final lop = await LopService.getLopById(widget.hocSinh.idLop);
+      if (mounted) {
+        setState(() {
+          _lop = lop;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,12 +54,14 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildStudentInfoCard(),
-          const SizedBox(height: 24),
-          _buildActionButtons(),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildStudentInfoCard(),
+            const SizedBox(height: 24),
+            _buildActionButtons(),
+          ],
+        ),
       ),
     );
   }
@@ -78,7 +101,7 @@ class _MainHocSinhScreenState extends State<MainHocSinhScreen> {
               "Số thẻ học sinh",
               widget.hocSinh.soTheHocSinh,
             ),
-            _infoRow(Icons.class_, "Lớp", widget.hocSinh.phongSo),
+            _infoRow(Icons.class_, "Lớp", _lop?.tenLop ?? widget.hocSinh.idLop),
           ],
         ),
       ),

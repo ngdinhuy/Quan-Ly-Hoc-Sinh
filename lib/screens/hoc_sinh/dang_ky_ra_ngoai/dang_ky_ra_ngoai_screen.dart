@@ -8,6 +8,7 @@ import '../../../models/hoc_sinh.dart';
 import '../../../models/user.dart';
 import '../../../models/xin_ra_vao.dart';
 import '../../../services/hoc_sinh_service.dart';
+import '../../../services/lop_service.dart';
 import '../../../services/user_service.dart';
 import '../../../services/xin_ra_vao_service.dart';
 
@@ -44,8 +45,16 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
       localDataService.getId()!,
     );
     debugPrint("Fetched HocSinh: ${fetchedHocSinh?.toFirestore()}");
+
+    // Fetch class information if idLop exists
+    Lop? fetchedLop;
+    if (fetchedHocSinh != null && fetchedHocSinh.idLop.isNotEmpty) {
+      fetchedLop = await LopService.getLopById(fetchedHocSinh.idLop);
+    }
+
     setState(() {
       hocSinh = fetchedHocSinh;
+      lop = fetchedLop;
     });
   }
 
@@ -142,52 +151,52 @@ class _DangKyRaNgoaiScreenState extends State<DangKyRaNgoaiScreen> {
     );
   }
 
-    Widget _buildInfoSection() {
-      return Card(
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Thông tin học sinh',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+  Widget _buildInfoSection() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Thông tin học sinh',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (hocSinh != null) ...[
+              _buildInfoRow(Icons.person, 'Họ và tên:', hocSinh!.hoTen),
+              _buildInfoRow(
+                Icons.calendar_today,
+                'Ngày sinh:',
+                DateFormat('dd/MM/yyyy').format(hocSinh!.ngaySinh),
+              ),
+              _buildInfoRow(
+                Icons.credit_card,
+                'Số thẻ học sinh:',
+                hocSinh!.soTheHocSinh,
+              ),
+              _buildInfoRow(
+                Icons.class_,
+                'Lớp:',
+                lop?.tenLop ?? 'Chưa có lớp',
+              ),
+            ] else
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(),
                 ),
               ),
-              const SizedBox(height: 16),
-              if (hocSinh != null) ...[
-                _buildInfoRow(Icons.person, 'Họ và tên:', hocSinh!.hoTen),
-                _buildInfoRow(
-                  Icons.calendar_today,
-                  'Ngày sinh:',
-                  DateFormat('dd/MM/yyyy').format(hocSinh!.ngaySinh),
-                ),
-                _buildInfoRow(
-                  Icons.credit_card,
-                  'Số thẻ học sinh:',
-                  hocSinh!.soTheHocSinh,
-                ),
-                _buildInfoRow(
-                  Icons.class_,
-                  'Lớp:',
-                  hocSinh!.idLop ?? 'Chưa có lớp',
-                ),
-              ] else
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
   Widget _buildTimeSection() {
     return Card(
