@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../models/hoc_sinh.dart';
+import '../../../models/lop.dart';
 import '../../../models/xin_ve_phep.dart';
 import '../../../services/hoc_sinh_service.dart';
 import '../../../services/local_data_service.dart';
+import '../../../services/lop_service.dart';
 import '../../../services/xin_ve_phep_service.dart';
 import '../../../utils/validation_utils.dart';
 
@@ -28,6 +30,7 @@ class _DangKyVePhepScreenState extends State<DangKyVePhepScreen> {
   TimeOfDay? _thoiGianXuongTruong;
 
   HocSinh? _hocSinh;
+  Lop? _lop;
   List<DateTime> _availableMealDates = [];
   Set<DateTime> _selectedMealDates = {};
 
@@ -58,6 +61,16 @@ class _DangKyVePhepScreenState extends State<DangKyVePhepScreen> {
       setState(() {
         _hocSinh = fetchedHocSinh;
       });
+
+      // Load class information
+      if (fetchedHocSinh != null && fetchedHocSinh.idLop.isNotEmpty) {
+        final lop = await LopService.getLopById(fetchedHocSinh.idLop);
+        if (mounted) {
+          setState(() {
+            _lop = lop;
+          });
+        }
+      }
     }
   }
 
@@ -297,7 +310,8 @@ class _DangKyVePhepScreenState extends State<DangKyVePhepScreen> {
                 'Số thẻ:',
                 _hocSinh!.soTheHocSinh,
               ),
-              _buildInfoRow(Icons.class_, 'Lớp:', _hocSinh!.idLop),
+              _buildInfoRow(
+                  Icons.class_, 'Lớp:', _lop?.tenLop ?? _hocSinh!.idLop),
             ] else
               const Center(child: CircularProgressIndicator()),
           ],
