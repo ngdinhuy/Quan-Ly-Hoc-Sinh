@@ -115,8 +115,7 @@ class DiemDanhService {
   /// Check if student has approved leave for a date
   static Future<bool> checkIsOnLeave(String idHocSinh, DateTime date) async {
     try {
-      final approvedLeaves =
-          await XinVePhepService.getApprovedByMealDate(date);
+      final approvedLeaves = await XinVePhepService.getApprovedByMealDate(date);
       return approvedLeaves.any((leave) => leave.idHocSinh == idHocSinh);
     } catch (e) {
       return false;
@@ -349,7 +348,8 @@ class DiemDanhService {
     }
 
     final endMinutes = _parseTimeToMinutes(thoiGian.ketThuc);
-    final currentMinutes = now.hour * 60 + now.minute; //Thời điểm hiện tại > thời gian kết thúc ca thì tính là đã kết thúc ca
+    final currentMinutes = now.hour * 60 +
+        now.minute; //Thời điểm hiện tại > thời gian kết thúc ca thì tính là đã kết thúc ca
 
     return currentMinutes > endMinutes;
   }
@@ -386,10 +386,8 @@ class DiemDanhService {
     final onLeaveIds = approvedLeaves.map((l) => l.idHocSinh).toSet();
 
     // Vắng = Tổng - đã_điểm_danh - nghỉ_phép
-    final absentIds = allStudentIds
-        .difference(checkedInIds)
-        .difference(onLeaveIds)
-        .toList();
+    final absentIds =
+        allStudentIds.difference(checkedInIds).difference(onLeaveIds).toList();
 
     return absentIds;
   }
@@ -401,7 +399,8 @@ class DiemDanhService {
     DateTime date,
   ) async {
     final lop = await LopService.getLopById(idLop);
-    final config = lop?.getConfigForDay(date.weekday) ?? CaHocConfig.defaultConfig();
+    final config =
+        lop?.getConfigForDay(date.weekday) ?? CaHocConfig.defaultConfig();
 
     final result = <String, dynamic>{
       'sang': <String>[],
@@ -410,9 +409,10 @@ class DiemDanhService {
       'total_absent': 0,
     };
 
-    // Only count absences for ended periods
+    // Tính số học sinh vắng theo từng ca
     for (final ca in CaDiemDanh.values) {
-      if (isPeriodEnded(config, ca, date)) {
+      // Logic mới: Tính cả ca đã kết thúc HOẶC ca đang diễn ra (đã qua giờ bắt đầu)
+      if (isPeriodStarted(config, ca, date)) {
         final absentIds = await getAbsentStudentIds(
           idLop: idLop,
           date: date,
@@ -423,17 +423,61 @@ class DiemDanhService {
       }
     }
 
-    // Tính toán ra tổng số học sinh đi muộn của 3 ca
-    final allAbsentIds = <String>{};
+    // Tính toán ra tổng số học sinh vắng của các ca (logic: vắng tất cả các ca đã diễn ra)
+    Set<String>? commonAbsentIds;
     for (final ca in CaDiemDanh.values) {
-      final key = DiemDanh.caToString(ca);
-      final ids = result[key] as List<String>? ?? <String>[];
-      allAbsentIds.addAll(ids);
+      if (isPeriodStarted(config, ca, date)) {
+        final key = DiemDanh.caToString(ca);
+        final ids = (result[key] as List<String>? ?? <String>[]).toSet();
+
+        if (commonAbsentIds == null) {
+          commonAbsentIds = ids;
+        } else {
+          commonAbsentIds = commonAbsentIds.intersection(ids);
+        }
+      }
     }
+
+    final allAbsentIds = commonAbsentIds?.toList() ?? <String>[];
     result['total_absent'] = allAbsentIds.length;
-    result['all_absent_ids'] = allAbsentIds.toList();
+    result['all_absent_ids'] = allAbsentIds;
 
     return result;
+  }
+
+  /// Kiểm tra ca học đã bắt đầu chưa (tính cả đang diễn ra hoặc đã kết thúc)
+  static bool isPeriodStarted(
+      CaHocConfig config, CaDiemDanh ca, DateTime date) {
+    final now = DateTime.now();
+    final dateOnly = DateTime(date.year, date.month, date.day);
+
+    // Ngày quá khứ -> Đã bắt đầu (và kết thúc)
+    if (dateOnly.isBefore(DateTime(now.year, now.month, now.day))) {
+      return true;
+    }
+    // Ngày tương lai -> Chưa bắt đầu
+    if (dateOnly.isAfter(DateTime(now.year, now.month, now.day))) {
+      return false;
+    }
+
+    // Cùng ngày -> Check giờ bắt đầu
+    ThoiGianCa thoiGian;
+    switch (ca) {
+      case CaDiemDanh.sang:
+        thoiGian = config.caSang;
+        break;
+      case CaDiemDanh.trua:
+        thoiGian = config.caTrua;
+        break;
+      case CaDiemDanh.chieuToi:
+        thoiGian = config.caChieuToi;
+        break;
+    }
+
+    final startMinutes = _parseTimeToMinutes(thoiGian.batDau);
+    final currentMinutes = now.hour * 60 + now.minute;
+
+    return currentMinutes >= startMinutes;
   }
 
   /// Get absence history for a student within date range
@@ -481,26 +525,31 @@ class DiemDanhService {
         continue;
       }
 
-      final config = lop?.getConfigForDay(currentDate.weekday) ?? CaHocConfig.defaultConfig();
+      // Logic mới: Nếu học sinh đã check-in bất kỳ ca nào trong ngày -> Tính là có đi học -> Skip
+      final hasAnyRecordInDay = attendanceRecords.any((r) =>
+          r.ngay.year == currentDate.year &&
+          r.ngay.month == currentDate.month &&
+          r.ngay.day == currentDate.day);
+
+      if (hasAnyRecordInDay) {
+        currentDate = currentDate.add(const Duration(days: 1));
+        continue;
+      }
+
+      final config = lop?.getConfigForDay(currentDate.weekday) ??
+          CaHocConfig.defaultConfig();
 
       // Check each period
       for (final ca in CaDiemDanh.values) {
         // Only check ended periods
         if (!isPeriodEnded(config, ca, currentDate)) continue;
 
-        // Check if student has attendance record for this period
-        final hasRecord = attendanceRecords.any((r) =>
-            r.ngay.year == currentDate.year &&
-            r.ngay.month == currentDate.month &&
-            r.ngay.day == currentDate.day &&
-            r.ca == ca);
-
-        if (!hasRecord) {
-          absences.add({
-            'date': currentDate,
-            'ca': ca,
-          });
-        }
+        // Vì đã check hasAnyRecordInDay ở trên và = false, nên chắc chắn k có record nào
+        // Chỉ cần check xem ca đã kết thúc chưa để báo vắng
+        absences.add({
+          'date': currentDate,
+          'ca': ca,
+        });
       }
 
       currentDate = currentDate.add(const Duration(days: 1));
