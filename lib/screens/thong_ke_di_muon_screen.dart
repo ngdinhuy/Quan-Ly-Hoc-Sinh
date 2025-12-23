@@ -51,37 +51,40 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
     try {
       final stats = <_ClassAttendanceStats>[];
 
-      // Lấy ra danh sách học sinh thực hiện điểm danh theo ngày (chứa thông tin cả 3 ca sáng trưa tối)
-      final lateRecords = await DiemDanhService.getLateByDate(_selectedDate);
-
       // Lấy ra lớp cần xem thông tin
       final classesToProcess =
           _selectedClass != null ? [_selectedClass!] : _classes;
 
       for (final lop in classesToProcess) {
         final students = await HocSinhService.getHocSinhByLop(lop.id!);
-        final classLateRecords =
-            lateRecords.where((r) => r.idLop == lop.id).toList();
+        final allStudentIds = students.map((s) => s.id!).toSet();
 
-        // Thực hiện lọc trùng từ danh sách điểm danh để ra danh sách học sinh đi muộn
-        final lateStudentIds = <String>{};
-        for (final record in classLateRecords) {
-          lateStudentIds.add(record.idHocSinh);
-        }
-
-        // Get absence statistics
-        final absenceStats = await DiemDanhService.getAbsenceStatistics(
-          lop.id!,
+        // Query điểm danh theo danh sách học sinh (tối ưu với whereIn)
+        final allRecords = await DiemDanhService.getByStudentIdsAndDate(
+          allStudentIds.toList(),
           _selectedDate,
         );
-        final absentStudentIds = (absenceStats['all_absent_ids'] as List<String>?) ?? [];
+
+        // Lọc danh sách học sinh đi muộn (trang_thai = 'tre')
+        final lateRecords = allRecords
+            .where((r) => r.trangThai == TrangThaiDiemDanh.tre)
+            .toList();
+
+        // Lấy danh sách unique student IDs đã điểm danh (bất kể trạng thái)
+        final checkedInStudentIds = allRecords.map((r) => r.idHocSinh).toSet();
+
+        // Lấy danh sách unique student IDs đi muộn
+        final lateStudentIds = lateRecords.map((r) => r.idHocSinh).toSet();
+
+        // Danh sách vắng mặt = tất cả học sinh - đã điểm danh
+        final absentStudentIds = allStudentIds.difference(checkedInStudentIds).toList();
 
         stats.add(_ClassAttendanceStats(
           lop: lop,
           totalStudents: students.length,
-          lateCount: classLateRecords.length,
+          lateCount: lateRecords.length,
           lateStudents: lateStudentIds.length,
-          lateRecords: classLateRecords,
+          lateRecords: lateRecords,
           absentCount: absentStudentIds.length,
           absentStudentIds: absentStudentIds,
         ));
