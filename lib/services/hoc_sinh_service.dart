@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/hoc_sinh.dart';
 import 'firebase_service.dart';
+import 'image_service.dart';
 
 class HocSinhService {
   static const String collection = 'hoc_sinh';
@@ -20,7 +24,66 @@ class HocSinhService {
   }
 
   static Future<void> deleteHocSinh(String id) async {
-    await FirebaseService.firestore.collection(collection).doc(id).delete();
+    try {
+      // Lấy thông tin học sinh để có student_id
+      final hocSinh = await getHocSinhById(id);
+      if (hocSinh == null) {
+        throw Exception('Không tìm thấy học sinh với ID: $id');
+      }
+
+      // Gọi API xóa học sinh trước
+      try {
+        final studentId = hocSinh.id;
+        if (studentId != null) {
+          await _deleteStudentFromAPI(studentId);
+          debugPrint('Đã xóa học sinh khỏi API: $studentId');
+        }
+      } catch (apiError) {
+        // Log lỗi nhưng vẫn tiếp tục xóa trên Firebase
+        debugPrint('Lỗi khi gọi API xóa học sinh: $apiError');
+      }
+
+      // Xóa học sinh khỏi Firestore
+      await FirebaseService.firestore.collection(collection).doc(id).delete();
+    } catch (e) {
+      debugPrint('Lỗi xóa học sinh: $e');
+      rethrow;
+    }
+  }
+
+  /// Gọi API xóa học sinh
+  static Future<void> _deleteStudentFromAPI(String studentId) async {
+    try {
+      final uri = Uri.parse('${ImageService.BASE_URL}/students/$studentId');
+
+      debugPrint('=== DELETE STUDENT API REQUEST ===');
+      debugPrint('URL: $uri');
+
+      final response = await http.delete(uri);
+
+      debugPrint('=== DELETE STUDENT API RESPONSE ===');
+      debugPrint('STATUS: ${response.statusCode}');
+      debugPrint('BODY: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          debugPrint('Xóa học sinh thành công từ API');
+        } else {
+          throw Exception(
+              'API trả về lỗi: ${responseData['message'] ?? 'Unknown error'}');
+        }
+      } else if (response.statusCode == 404) {
+        // Học sinh không tồn tại trên API, bỏ qua lỗi này
+        debugPrint(
+            'Học sinh không tồn tại trên API (404), tiếp tục xóa trên Firebase');
+      } else {
+        throw Exception('API trả về lỗi: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Lỗi gọi API xóa học sinh: $e');
+      rethrow;
+    }
   }
 
   static Future<HocSinh?> getHocSinhById(String id) async {
@@ -34,12 +97,11 @@ class HocSinhService {
   }
 
   static Future<HocSinh?> getHocSinhBySoThe(String soThe) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('so_the_hoc_sinh', isEqualTo: soThe)
-            .limit(1)
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('so_the_hoc_sinh', isEqualTo: soThe)
+        .limit(1)
+        .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       return HocSinh.fromFirestore(querySnapshot.docs.first);
@@ -48,23 +110,21 @@ class HocSinhService {
   }
 
   static Future<List<HocSinh>> getHocSinhByLop(String idLop) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('id_lop', isEqualTo: idLop)
-            .orderBy('ho_ten')
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('id_lop', isEqualTo: idLop)
+        .orderBy('ho_ten')
+        .get();
 
     return querySnapshot.docs.map((doc) => HocSinh.fromFirestore(doc)).toList();
   }
 
   static Future<List<HocSinh>> getHocSinhByTruong(String idTruong) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('id_truong', isEqualTo: idTruong)
-            .orderBy('ho_ten')
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('id_truong', isEqualTo: idTruong)
+        .orderBy('ho_ten')
+        .get();
 
     return querySnapshot.docs.map((doc) => HocSinh.fromFirestore(doc)).toList();
   }
@@ -82,38 +142,35 @@ class HocSinhService {
   }
 
   static Future<List<HocSinh>> searchHocSinh(String query) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('ho_ten', isGreaterThanOrEqualTo: query)
-            .where('ho_ten', isLessThan: query + 'z')
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('ho_ten', isGreaterThanOrEqualTo: query)
+        .where('ho_ten', isLessThan: '${query}z')
+        .get();
 
     return querySnapshot.docs.map((doc) => HocSinh.fromFirestore(doc)).toList();
   }
 
   static Future<HocSinh?> getHocSinhByIdUser(String idUser) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('id_user', isEqualTo: idUser)
-            .limit(1)
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('id_user', isEqualTo: idUser)
+        .limit(1)
+        .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       return HocSinh.fromFirestore(querySnapshot.docs.first);
-    } 
+    }
     return null;
   }
 
   static Future<HocSinh?> login(String soThe, String matKhau) async {
-    final querySnapshot =
-        await FirebaseService.firestore
-            .collection(collection)
-            .where('so_the_hoc_sinh', isEqualTo: soThe)
-            .where('mat_khau', isEqualTo: matKhau)
-            .limit(1)
-            .get();
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('so_the_hoc_sinh', isEqualTo: soThe)
+        .where('mat_khau', isEqualTo: matKhau)
+        .limit(1)
+        .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       return HocSinh.fromFirestore(querySnapshot.docs.first);
@@ -141,10 +198,8 @@ class HocSinhService {
     }
 
     // Lấy thông tin học sinh
-    final hocSinhDoc = await FirebaseService.firestore
-        .collection(collection)
-        .doc(idHs)
-        .get();
+    final hocSinhDoc =
+        await FirebaseService.firestore.collection(collection).doc(idHs).get();
 
     if (hocSinhDoc.exists) {
       return [HocSinh.fromFirestore(hocSinhDoc)];
