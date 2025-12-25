@@ -146,6 +146,58 @@ class DiemDanhService {
     return null;
   }
 
+  /// Get all attendance records for a student on a specific date (all periods)
+  static Future<List<DiemDanh>> getByStudentAndDateAll(
+    String idHocSinh,
+    DateTime date,
+  ) async {
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final nextDay = dateOnly.add(const Duration(days: 1));
+
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('id_hoc_sinh', isEqualTo: idHocSinh)
+        .where('ngay', isGreaterThanOrEqualTo: Timestamp.fromDate(dateOnly))
+        .where('ngay', isLessThan: Timestamp.fromDate(nextDay))
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => DiemDanh.fromFirestore(doc))
+        .toList();
+  }
+
+  /// Get all attendance records for multiple students on a specific date
+  static Future<List<DiemDanh>> getByStudentIdsAndDate(
+    List<String> studentIds,
+    DateTime date,
+  ) async {
+    if (studentIds.isEmpty) return [];
+
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final nextDay = dateOnly.add(const Duration(days: 1));
+
+    // Firestore whereIn has a limit of 30 items, so we need to batch
+    final results = <DiemDanh>[];
+    const batchSize = 30;
+
+    for (var i = 0; i < studentIds.length; i += batchSize) {
+      final batch = studentIds.skip(i).take(batchSize).toList();
+
+      final querySnapshot = await FirebaseService.firestore
+          .collection(collection)
+          .where('id_hoc_sinh', whereIn: batch)
+          .where('ngay', isGreaterThanOrEqualTo: Timestamp.fromDate(dateOnly))
+          .where('ngay', isLessThan: Timestamp.fromDate(nextDay))
+          .get();
+
+      results.addAll(
+        querySnapshot.docs.map((doc) => DiemDanh.fromFirestore(doc)),
+      );
+    }
+
+    return results;
+  }
+
   /// Get attendance history for a student within date range
   static Future<List<DiemDanh>> getByStudent(
     String idHocSinh,
