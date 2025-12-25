@@ -70,6 +70,11 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
             .where((r) => r.trangThai == TrangThaiDiemDanh.tre)
             .toList();
 
+        // Lọc danh sách học sinh đi đúng giờ (trang_thai = 'dung_gio')
+        final onTimeRecords = allRecords
+            .where((r) => r.trangThai == TrangThaiDiemDanh.dungGio)
+            .toList();
+
         // Lấy danh sách unique student IDs đã điểm danh (bất kể trạng thái)
         final checkedInStudentIds = allRecords.map((r) => r.idHocSinh).toSet();
 
@@ -77,7 +82,8 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
         final lateStudentIds = lateRecords.map((r) => r.idHocSinh).toSet();
 
         // Danh sách vắng mặt = tất cả học sinh - đã điểm danh
-        final absentStudentIds = allStudentIds.difference(checkedInStudentIds).toList();
+        final absentStudentIds =
+            allStudentIds.difference(checkedInStudentIds).toList();
 
         stats.add(_ClassAttendanceStats(
           lop: lop,
@@ -87,6 +93,7 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
           lateRecords: lateRecords,
           absentCount: absentStudentIds.length,
           absentStudentIds: absentStudentIds,
+          onTimeRecords: onTimeRecords,
         ));
       }
 
@@ -95,7 +102,7 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
       });
     } catch (e) {
       if (mounted) {
-        debugPrint("huynd:  ${e}");
+        debugPrint("huynd:  $e");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Lỗi tải thống kê: $e')),
         );
@@ -125,7 +132,7 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
     showDialog(
       context: context,
       builder: (context) => DefaultTabController(
-        length: 2,
+        length: 3,
         child: AlertDialog(
           title: Text('Chi tiết điểm danh - ${stats.lop.tenLop}'),
           content: SizedBox(
@@ -138,6 +145,7 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                   tabs: [
                     Tab(text: 'Đi muộn'),
                     Tab(text: 'Vắng mặt'),
+                    Tab(text: 'Đúng giờ'),
                   ],
                 ),
                 Expanded(
@@ -147,6 +155,8 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                       _buildLateStudentsList(stats),
                       // Absent students tab
                       _buildAbsentStudentsList(stats),
+                      // On-time students tab
+                      _buildOnTimeStudentsList(stats),
                     ],
                   ),
                 ),
@@ -246,6 +256,92 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
     );
   }
 
+  Widget _buildOnTimeStudentsList(_ClassAttendanceStats stats) {
+    if (stats.onTimeRecords.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info_outline, size: 48, color: Colors.grey),
+            SizedBox(height: 8),
+            Text('Không có học sinh đi đúng giờ'),
+          ],
+        ),
+      );
+    }
+
+    return FutureBuilder<List<_StudentInfo>>(
+      future: _getOnTimeStudentInfo(stats.onTimeRecords),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final infos = snapshot.data ?? [];
+        return ListView.builder(
+          itemCount: infos.length,
+          itemBuilder: (context, index) {
+            final info = infos[index];
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.green.shade100,
+                child: Text('${index + 1}'),
+              ),
+              title: Text(info.studentName),
+              subtitle: Text(
+                '${info.record!.caDisplayName} - Check-in: ${DateFormat('HH:mm').format(info.record!.thoiGianCheckin)}',
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteOnTimeRecord(info.record!),
+                tooltip: 'Xóa bản ghi',
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteOnTimeRecord(DiemDanh record) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa bản ghi điểm danh này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && record.id != null) {
+      try {
+        await DiemDanhService.delete(record.id!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã xóa bản ghi thành công')),
+          );
+          Navigator.pop(context); // Close dialog
+          await _loadStatistics(); // Reload data
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lỗi xóa bản ghi: $e')),
+          );
+        }
+      }
+    }
+  }
+
   Future<List<_StudentInfo>> _getLateStudentInfo(List<DiemDanh> records) async {
     final infos = <_StudentInfo>[];
     for (final record in records) {
@@ -259,13 +355,28 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
     return infos;
   }
 
-  Future<List<_StudentInfo>> _getAbsentStudentInfo(List<String> studentIds) async {
+  Future<List<_StudentInfo>> _getAbsentStudentInfo(
+      List<String> studentIds) async {
     final infos = <_StudentInfo>[];
     for (final id in studentIds) {
       final student = await HocSinhService.getHocSinhById(id);
       infos.add(_StudentInfo(
         studentId: id,
         studentName: student?.hoTen ?? 'Unknown',
+      ));
+    }
+    return infos;
+  }
+
+  Future<List<_StudentInfo>> _getOnTimeStudentInfo(
+      List<DiemDanh> records) async {
+    final infos = <_StudentInfo>[];
+    for (final record in records) {
+      final student = await HocSinhService.getHocSinhById(record.idHocSinh);
+      infos.add(_StudentInfo(
+        studentId: record.idHocSinh,
+        studentName: student?.hoTen ?? 'Unknown',
+        record: record,
       ));
     }
     return infos;
@@ -286,20 +397,24 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                 child: Row(
                   children: [
                     // Date picker
-                    const Text('Ngày: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Ngày: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     OutlinedButton.icon(
                       onPressed: _selectDate,
                       icon: const Icon(Icons.calendar_today),
-                      label: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
+                      label:
+                          Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
                     ),
                     const SizedBox(width: 24),
                     // Class filter
-                    const Text('Lớp: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Lớp: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     DropdownButton<Lop?>(
                       value: _selectedClass,
                       hint: const Text('Tất cả'),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Tất cả')),
+                        const DropdownMenuItem(
+                            value: null, child: Text('Tất cả')),
                         ..._classes.map((lop) {
                           return DropdownMenuItem(
                             value: lop,
@@ -382,8 +497,12 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                                   Text(
                                     '${stat.lateStudents}',
                                     style: TextStyle(
-                                      color: stat.lateStudents > 0 ? Colors.orange : null,
-                                      fontWeight: stat.lateStudents > 0 ? FontWeight.bold : null,
+                                      color: stat.lateStudents > 0
+                                          ? Colors.orange
+                                          : null,
+                                      fontWeight: stat.lateStudents > 0
+                                          ? FontWeight.bold
+                                          : null,
                                     ),
                                   ),
                                 ),
@@ -391,8 +510,12 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                                   Text(
                                     '${stat.absentCount}',
                                     style: TextStyle(
-                                      color: stat.absentCount > 0 ? Colors.red : null,
-                                      fontWeight: stat.absentCount > 0 ? FontWeight.bold : null,
+                                      color: stat.absentCount > 0
+                                          ? Colors.red
+                                          : null,
+                                      fontWeight: stat.absentCount > 0
+                                          ? FontWeight.bold
+                                          : null,
                                     ),
                                   ),
                                 ),
@@ -400,7 +523,9 @@ class _ThongKeDiMuonScreenState extends State<ThongKeDiMuonScreen> {
                                 DataCell(
                                   IconButton(
                                     icon: const Icon(Icons.visibility),
-                                    onPressed: (stat.lateCount > 0 || stat.absentCount > 0)
+                                    onPressed: (stat.lateCount > 0 ||
+                                            stat.absentCount > 0 ||
+                                            stat.onTimeRecords.isNotEmpty)
                                         ? () => _showStudentDetails(stat)
                                         : null,
                                   ),
@@ -458,6 +583,7 @@ class _ClassAttendanceStats {
   final List<DiemDanh> lateRecords;
   final int absentCount;
   final List<String> absentStudentIds;
+  final List<DiemDanh> onTimeRecords;
 
   _ClassAttendanceStats({
     required this.lop,
@@ -467,6 +593,7 @@ class _ClassAttendanceStats {
     required this.lateRecords,
     required this.absentCount,
     required this.absentStudentIds,
+    required this.onTimeRecords,
   });
 }
 

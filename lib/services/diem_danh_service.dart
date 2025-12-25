@@ -317,6 +317,28 @@ class DiemDanhService {
         .toList();
   }
 
+  /// Get all on-time records for a date (across all classes)
+  static Future<List<DiemDanh>> getOnTimeByDate(DateTime date) async {
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final nextDay = dateOnly.add(const Duration(days: 1));
+
+    final querySnapshot = await FirebaseService.firestore
+        .collection(collection)
+        .where('trang_thai', isEqualTo: 'dung_gio')
+        .where('ngay', isGreaterThanOrEqualTo: Timestamp.fromDate(dateOnly))
+        .where('ngay', isLessThan: Timestamp.fromDate(nextDay))
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => DiemDanh.fromFirestore(doc))
+        .toList();
+  }
+
+  /// Delete an attendance record by ID
+  static Future<void> delete(String id) async {
+    await FirebaseService.firestore.collection(collection).doc(id).delete();
+  }
+
   /// Get today's attendance for a student
   static Future<List<DiemDanh>> getTodayByStudent(String idHocSinh) async {
     final now = DateTime.now();
