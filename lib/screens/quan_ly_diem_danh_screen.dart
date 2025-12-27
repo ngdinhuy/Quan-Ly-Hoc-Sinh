@@ -307,26 +307,73 @@ class _QuanLyDiemDanhScreenState extends State<QuanLyDiemDanhScreen>
           Expanded(
             child: Column(
               children: [
-                TabBar(
-                  controller: _tabController,
-                  tabs: [
-                    Tab(
-                      text:
-                          'Đúng giờ (${_getRecordsByStatus(TrangThaiDiemDanh.dungGio).length})',
-                      icon: const Icon(Icons.check_circle),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha: 0.2),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.blue.shade400,
+                          Colors.blue.shade600,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withValues(alpha: 0.4),
+                          spreadRadius: 1,
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    Tab(
-                      text:
-                          'Đi muộn (${_getRecordsByStatus(TrangThaiDiemDanh.tre).length})',
-                      icon: const Icon(Icons.schedule),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.grey.shade700,
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
-                    Tab(
-                      text:
-                          'Vắng phép (${_getRecordsByStatus(TrangThaiDiemDanh.vangPhep).length})',
-                      icon: const Icon(Icons.event_busy),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
                     ),
-                  ],
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    tabs: [
+                      _buildTab(
+                        'Đúng giờ',
+                        _getRecordsByStatus(TrangThaiDiemDanh.dungGio).length,
+                        Icons.check_circle,
+                        Colors.green,
+                      ),
+                      _buildTab(
+                        'Đi muộn',
+                        _getRecordsByStatus(TrangThaiDiemDanh.tre).length,
+                        Icons.schedule,
+                        Colors.orange,
+                      ),
+                      _buildTab(
+                        'Vắng phép',
+                        _getRecordsByStatus(TrangThaiDiemDanh.vangPhep).length,
+                        Icons.event_busy,
+                        Colors.purple,
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 16),
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
@@ -343,6 +390,52 @@ class _QuanLyDiemDanhScreenState extends State<QuanLyDiemDanhScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildTab(String title, int count, IconData icon, Color color) {
+    return Tab(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Text(title),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: _tabController.index == _getTabIndex(title)
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: _tabController.index == _getTabIndex(title)
+                    ? Colors.white
+                    : color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _getTabIndex(String title) {
+    switch (title) {
+      case 'Đúng giờ':
+        return 0;
+      case 'Đi muộn':
+        return 1;
+      case 'Vắng phép':
+        return 2;
+      default:
+        return 0;
+    }
   }
 
   Widget _buildSummaryCard(
